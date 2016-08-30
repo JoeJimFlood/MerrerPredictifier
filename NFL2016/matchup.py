@@ -81,11 +81,17 @@ def get_residual_performance(team): #Get how each team has done compared to the 
         elif stat == 'PAT1%F':
             residual_stats.update({stat: (score_df['R_PAT1%F'].multiply(score_df['PAT1FA'])).sum() / score_df['PAT1FA'].sum()})
         elif stat == 'PAT2%F':
-            residual_stats.update({stat: (score_df['R_PAT2%F'].multiply(score_df['PAT2FA'])).sum() / score_df['PAT2FA'].sum()})
+            try:
+                residual_stats.update({stat: (score_df['R_PAT2%F'].multiply(score_df['PAT2FA'])).sum() / score_df['PAT2FA'].sum()})
+            except ZeroDivisionError:
+                residual_stats[stat] = 0.0
         elif stat == 'PAT1%A':
             residual_stats.update({stat: (score_df['R_PAT1%A'].multiply(score_df['PAT1AA'])).sum() / score_df['PAT1AA'].sum()})
         elif stat == 'PAT2%A':
-            residual_stats.update({stat: (score_df['R_PAT2%A'].multiply(score_df['PAT2AA'])).sum() / score_df['PAT2AA'].sum()})
+            try:
+                residual_stats.update({stat: (score_df['R_PAT2%A'].multiply(score_df['PAT2AA'])).sum() / score_df['PAT2AA'].sum()})
+            except ZeroDivisionError:
+                residual_stats[stat] = 0.0
         try:
             residual_stats.update({'GOFOR2': float(score_df['PAT2FA'].sum()) / score_df['TDF'].sum()})
         except ZeroDivisionError:
@@ -177,8 +183,11 @@ def get_expected_scores(team_1_stats, team_2_stats, team_1_df, team_2_df): #Get 
         else:
             expected_scores.update({'PAT1PROB': 0.99})
         #print(expected_scores['PAT1PROB'])
-        pat2prob = mean([team_1_stats['PAT2%F'] + team_2_df['PAT2AS'].astype('float').sum() / team_2_df['PAT2AA'].sum(),
-                         team_2_stats['PAT2%A'] + team_1_df['PAT2FS'].astype('float').sum() / team_1_df['PAT2FA'].sum()])
+        try:
+            pat2prob = mean([team_1_stats['PAT2%F'] + team_2_df['PAT2AS'].astype('float').sum() / team_2_df['PAT2AA'].sum(),
+                             team_2_stats['PAT2%A'] + team_1_df['PAT2FS'].astype('float').sum() / team_1_df['PAT2FA'].sum()])
+        except ZeroDivisionError:
+            pat2prob = np.nan
         if not math.isnan(pat2prob):
             expected_scores.update({'PAT2PROB': pat2prob})
         else:
@@ -224,7 +233,15 @@ def matchup(team_1, team_2):
     else:
         print('Probability converged after ' + str(i) + ' iterations')
     games = pd.DataFrame.from_items([(team_1, team_1_scores), (team_2, team_2_scores)])
-    summaries = games.describe(percentiles = [0.025, 0.1, 0.25, 0.5, 0.75, 0.9, 0.975])
+    summaries = games.describe(percentiles = np.arange(0.05, 1, 0.05))
+
+    def round_percentile(percentile):
+        return percentile.replace('.0', '')
+
+    summaries = summaries.reset_index()
+    summaries['index'] = summaries['index'].apply(round_percentile)
+    summaries = summaries.set_index('index')
+
     output = {'ProbWin': {team_1: team_1_prob, team_2: team_2_prob}, 'Scores': summaries}
 
     print(team_1 + '/' + team_2 + ' score distributions computed in ' + str(round(time.time() - ts, 1)) + ' seconds')
