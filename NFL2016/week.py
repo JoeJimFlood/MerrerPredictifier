@@ -1,5 +1,4 @@
 import pandas as pd
-import matchup
 import xlsxwriter
 import sys
 import time
@@ -7,9 +6,15 @@ import collections
 import os
 import matplotlib.pyplot as plt
 
+venue = True
+if venue:
+    import matchup_hfa as matchup
+else:
+    import matchup
+
 week_timer = time.time()
 
-week_number = 'DEBUG'
+week_number = 'VenueTest_Exp'
 
 matchups = collections.OrderedDict()
 matchups['DEBUG1'] = [('SEA', 'DEN'),

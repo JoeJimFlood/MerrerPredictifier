@@ -6,7 +6,7 @@ from numpy.random import poisson, uniform
 from numpy import mean
 import time
 import math
-
+import pdb
 po = True
 
 teamsheetpath = sys.path[0] + '/teamcsvs/'
@@ -173,46 +173,47 @@ def get_venue_adjustments(team_df, venue):
     '''
 
     '''
-    assert venue in [-1, 0, 1]
+    assert venue in [-1, 0, 1], 'Venue must be equal to -1 for away, 1 for home, or 0 for neutral'
 
     if not venue:
         venue_adjustments = {'TDF': 0, 'TDA': 0,
                              'FGF': 0, 'FGA': 0,
-                             'SF': 0, 'SA': 0,
+                             'SFF': 0, 'SFA': 0,
                              'PAT1%F': 0, 'PAT1%A': 0,
                              'PAT2%F': 0, 'PAT2%A': 0}
         return venue_adjustments
 
-    venue_df = team_df[team_df[venue] == venue]
-    if len(venue_df.index == 0):
-        venue_adjustments = {'TDF': 0, 'TDA': 0,
-                             'FGF': 0, 'FGA': 0,
-                             'SF': 0, 'SA': 0,
-                             'PAT1%F': 0, 'PAT1%A': 0,
-                             'PAT2%F': 0, 'PAT2%A': 0}
+    venue_df = team_df[team_df['VENUE'] == venue]
+    #pdb.set_trace()
+    if len(venue_df.index) == 0:
+        venue_adjustments = {'TDF': 0., 'TDA': 0.,
+                             'FGF': 0., 'FGA': 0.,
+                             'SFF': 0., 'SFA': 0.,
+                             'PAT1%F': 0., 'PAT1%A': 0.,
+                             'PAT2%F': 0., 'PAT2%A': 0.}
     
     else:
         venue_adjustments = {}
         for stat in venue_df:
-            if stat in ['TDF', 'TDA', 'FGF', 'FGA', 'SF', 'SA']:
+            if stat in ['TDF', 'TDA', 'FGF', 'FGA', 'SFF', 'SFA']:
                 venue_adjustments[stat] = venue_df[stat].mean() - team_df[stat].mean()
             try:
-                venue_adjustments['PAT1%F'] = venue_df['PAT1FS']/venue_df['PAT1FA'] - team_df['PAT1FS']/team_df['PAT1FA']
+                venue_adjustments['PAT1%F'] = venue_df['PAT1FS'].sum()/venue_df['PAT1FA'].sum() - team_df['PAT1FS'].sum()/team_df['PAT1FA'].sum()
             except ZeroDivisionError:
                 venue_adjustments['PAT1%F'] = 0
             try:
-                venue_adjustments['PAT1%A'] = venue_df['PAT1AS']/venue_df['PAT1AA'] - team_df['PAT1AS']/team_df['PAT1AA']
+                venue_adjustments['PAT1%A'] = venue_df['PAT1AS'].sum()/venue_df['PAT1AA'].sum() - team_df['PAT1AS'].sum()/team_df['PAT1AA'].sum()
             except ZeroDivisionError:
                 venue_adjustments['PAT1%A'] = 0
             try:
-                venue_adjustments['PAT2%F'] = venue_df['PAT2FS']/venue_df['PAT2FA'] - team_df['PAT2FS']/team_df['PAT2FA']
+                venue_adjustments['PAT2%F'] = venue_df['PAT2FS'].sum()/venue_df['PAT2FA'].sum() - team_df['PAT2FS'].sum()/team_df['PAT2FA'].sum()
             except ZeroDivisionError:
                 venue_adjustments['PAT2%F'] = 0
             try:
-                venue_adjustments['PAT2%A'] = venue_df['PAT2AS']/venue_df['PAT2AA'] - team_df['PAT2AS']/team_df['PAT2AA']
+                venue_adjustments['PAT2%A'] = venue_df['PAT2AS'].sum()/venue_df['PAT2AA'].sum() - team_df['PAT2AS'].sum()/team_df['PAT2AA'].sum()
             except ZeroDivisionError:
-                venue_adjustments['PAT2%F'] = 0
-
+                venue_adjustments['PAT2%A'] = 0
+    #pdb.set_trace()
     return venue_adjustments
 
 def get_expected_scores(team_1_stats, team_2_stats, team_1_df, team_2_df, team_1_adjustments, team_2_adjustments):
@@ -241,8 +242,9 @@ def get_expected_scores(team_1_stats, team_2_stats, team_1_df, team_2_df, team_1
                                     team_2_stats['TDA'] + team_1_df['TDF'].mean()]) + team_1_adjustments['TDF'] + team_2_adjustments['TDA']
     expected_scores['FG'] = mean([team_1_stats['FGF'] + team_2_df['FGA'].mean(),
                                     team_2_stats['FGA'] + team_1_df['FGF'].mean()]) + team_1_adjustments['FGF'] + team_2_adjustments['FGA']
+    #pdb.set_trace()
     expected_scores['S'] = mean([team_1_stats['SFF'] + team_2_df['SFA'].mean(),
-                                    team_2_stats['SFA'] + team_1_df['SFF'].mean()]) + team_1_adjustments['SF'] + team_2_adjustments['SA']
+                                    team_2_stats['SFA'] + team_1_df['SFF'].mean()]) + team_1_adjustments['SFF'] + team_2_adjustments['SFA']
 
     expected_scores['GOFOR2'] = team_1_stats['GOFOR2']
     pat1prob = mean([team_1_stats['PAT1%F'] + team_2_df['PAT1AS'].astype('float').sum() / team_2_df['PAT1AA'].sum(),
@@ -262,7 +264,7 @@ def get_expected_scores(team_1_stats, team_2_stats, team_1_df, team_2_df, team_1
     else:
         expected_scores['PAT2PROB'] = 0.5
 
-    
+    #pdb.set_trace()
     expected_scores['PAT1PROB'] = probadd(np.array([expected_scores['PAT1PROB'], team_1_adjustments['PAT1%F'], team_2_adjustments['PAT1%A']]))
     expected_scores['PAT2PROB'] = probadd(np.array([expected_scores['PAT2PROB'], team_1_adjustments['PAT2%F'], team_2_adjustments['PAT2%A']]))
     
@@ -387,12 +389,16 @@ def matchup(team_1, team_2, neutral = False):
         team_1_venue = 1
         team_2_venue = -1
 
+    #pdb.set_trace()
+
     stats_1 = get_residual_performance(team_1)
     stats_2 = get_residual_performance(team_2)
     team_1_adjustments = get_venue_adjustments(team_1_season, team_1_venue)
     team_2_adjustments = get_venue_adjustments(team_2_season, team_2_venue)
     expected_scores_1 = get_expected_scores(stats_1, stats_2, team_1_season, team_2_season, team_1_adjustments, team_2_adjustments)
     expected_scores_2 = get_expected_scores(stats_2, stats_1, team_2_season, team_1_season, team_2_adjustments, team_1_adjustments)
+
+    #pdb.set_trace()
 
     #Initialize with no wins or scores for each team
     team_1_wins = 0
@@ -413,10 +419,10 @@ def matchup(team_1, team_2, neutral = False):
         team_1_prev_wins = team_1_wins
         team_1_wins += summary[team_1][0]
         team_2_wins += summary[team_2][0]
-        team_1_draws += summary[team_1][1]
-        team_2_draws += summary[team_2][1]
-        team_1_scores.append(summary[team_1][2])
-        team_2_scores.append(summary[team_2][2])
+        #team_1_draws += summary[team_1][1]
+        #team_2_draws += summary[team_2][1]
+        team_1_scores.append(summary[team_1][1])
+        team_2_scores.append(summary[team_2][1])
         team_1_prob = float(team_1_wins) / len(team_1_scores)
         team_2_prob = float(team_2_wins) / len(team_2_scores)
 
@@ -425,10 +431,10 @@ def matchup(team_1, team_2, neutral = False):
             team_1_prev_prob = float(team_1_prev_wins) / i
             error = team_1_prob - team_1_prev_prob
         i = i + 1
-    if i == min_iter:
+    if i == min_iter + 1:
         print('Probability converged within %d iterations'%(min_iter))
     else:
-        print('Probability converged after ' + str(i) + ' iterations')
+        print('Probability converged after %d iterations'%(i-1))
 
     games = pd.DataFrame.from_items([(team_1, team_1_scores), (team_2, team_2_scores)])
     summaries = games.describe(percentiles = np.arange(0.05, 1, 0.05))
