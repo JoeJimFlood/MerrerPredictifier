@@ -17,22 +17,22 @@ week_timer = time.time()
 week_number = 'VenueTest_Exp'
 
 matchups = collections.OrderedDict()
-matchups['DEBUG1'] = [('SEA', 'DEN'),
-                      ('SEA', 'NE'),
-                      ('SEA', 'CAR'),
-                      ('DEN', 'NE'),
-                      ('DEN', 'CAR'),
-                      ('NE', 'CAR'),
-                      ('DEN', 'SEA'),
-                      ('NE', 'SEA')]
-matchups['DEBUG2'] = [('CAR', 'SEA'),
-                      ('NE', 'DEN'),
-                      ('CAR', 'DEN'),
-                      ('CAR', 'NE'),
-                      ('SEA', 'DEN'),
-                      ('SEA', 'NE'),
-                      ('SEA', 'CAR'),
-                      ('DEN', 'NE')]
+matchups['Thursday Night'] = [('BUF', 'NYJ')]
+matchups['Sunday Morning'] = [('CAR', 'SF'),
+                              ('WAS', 'DAL'),
+                              ('PIT', 'CIN'),
+                              ('NYG', 'NO'),
+                              ('NE', 'MIA'),
+                              ('HOU', 'KC'),
+                              ('DET', 'TEN'),
+                              ('CLE', 'BAL')]
+matchups['Sunday Afternoon'] = [('LA', 'SEA'),
+                                ('ARI', 'TB'),
+                                ('SD', 'JAX'),
+                                ('OAK', 'ATL'),
+                                ('DEN', 'IND')]
+matchups['Sunday Night'] = [('MIN', 'GB')]
+matchups['Monday Night'] = [('CHI', 'PHI')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
