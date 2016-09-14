@@ -122,7 +122,7 @@ def get_residual_performance(team):
         try:
             score_df['PAT1%F'][week] = float(score_df['PAT1FS'][week]) / score_df['PAT1FA'][week]
         except ZeroDivisionError:
-            score_df['PAT1%F'][week] = 0.99
+            score_df['PAT1%F'][week] = 0.94
         try:
             score_df['PAT2%F'][week] = float(score_df['PAT2FS'][week]) / score_df['PAT2FA'][week]
         except ZeroDivisionError:
@@ -130,7 +130,7 @@ def get_residual_performance(team):
         try:
             score_df['PAT1%A'][week] = float(score_df['PAT1AS'][week]) / score_df['PAT1AA'][week]
         except ZeroDivisionError:
-            score_df['PAT1%A'][week] = 0.99
+            score_df['PAT1%A'][week] = 0.94
         try:
             score_df['PAT2%A'][week] = float(score_df['PAT2AS'][week]) / score_df['PAT2AA'][week]
         except ZeroDivisionError:
@@ -149,14 +149,20 @@ def get_residual_performance(team):
         if stat in ['TDF', 'FGF', 'SFF', 'TDA', 'FGA', 'SFA']:
             residual_stats[stat] = score_df['R_' + stat].mean()
         elif stat == 'PAT1%F':
-            residual_stats[stat] = (score_df['R_PAT1%F'].multiply(score_df['PAT1FA'])).sum() / score_df['PAT1FA'].sum()
+            try:
+                residual_stats[stat] = (score_df['R_PAT1%F'].multiply(score_df['PAT1FA'])).sum() / score_df['PAT1FA'].sum()
+            except ZeroDivisionError:
+                residual_stats[stat] = 0.0
         elif stat == 'PAT2%F':
             try:
                 residual_stats[stat] = (score_df['R_PAT2%F'].multiply(score_df['PAT2FA'])).sum() / score_df['PAT2FA'].sum()
             except ZeroDivisionError:
                 residual_stats[stat] = 0.0
         elif stat == 'PAT1%A':
-            residual_stats[stat] = (score_df['R_PAT1%A'].multiply(score_df['PAT1AA'])).sum() / score_df['PAT1AA'].sum()
+            try:
+                residual_stats[stat] = (score_df['R_PAT1%A'].multiply(score_df['PAT1AA'])).sum() / score_df['PAT1AA'].sum()
+            except ZeroDivisionError:
+                residual_stats[stat] = 0.0
         elif stat == 'PAT2%A':
             try:
                 residual_stats[stat] = (score_df['R_PAT2%A'].multiply(score_df['PAT2AA'])).sum() / score_df['PAT2AA'].sum()
@@ -247,12 +253,15 @@ def get_expected_scores(team_1_stats, team_2_stats, team_1_df, team_2_df, team_1
                                     team_2_stats['SFA'] + team_1_df['SFF'].mean()]) + team_1_adjustments['SFF'] + team_2_adjustments['SFA']
 
     expected_scores['GOFOR2'] = team_1_stats['GOFOR2']
-    pat1prob = mean([team_1_stats['PAT1%F'] + team_2_df['PAT1AS'].astype('float').sum() / team_2_df['PAT1AA'].sum(),
-                        team_2_stats['PAT1%A'] + team_1_df['PAT1FS'].astype('float').sum() / team_1_df['PAT1FA'].sum()])
+    try:
+        pat1prob = mean([team_1_stats['PAT1%F'] + team_2_df['PAT1AS'].astype('float').sum() / team_2_df['PAT1AA'].sum(),
+                         team_2_stats['PAT1%A'] + team_1_df['PAT1FS'].astype('float').sum() / team_1_df['PAT1FA'].sum()])
+    except ZeroDivisionError:
+        pat1prob = np.nan
     if not math.isnan(pat1prob):
         expected_scores['PAT1PROB'] = pat1prob
     else:
-        expected_scores['PAT1PROB'] = 0.99
+        expected_scores['PAT1PROB'] = 0.94
         
     try:
         pat2prob = mean([team_1_stats['PAT2%F'] + team_2_df['PAT2AS'].astype('float').sum() / team_2_df['PAT2AA'].sum(),

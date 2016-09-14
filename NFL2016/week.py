@@ -14,7 +14,7 @@ else:
 
 week_timer = time.time()
 
-week_number = 'VenueTest_Exp'
+week_number = '2V'
 
 matchups = collections.OrderedDict()
 matchups['Thursday Night'] = [('BUF', 'NYJ')]
@@ -102,6 +102,11 @@ for game_time in matchups:
         for i in range(1, 20):
             sheet.write_number(2+i, homecol, home_dist[str(5*i)+'%'], score_format)
             sheet.write_number(2+i, awaycol, away_dist[str(5*i)+'%'], score_format)
+
+        sheet.set_column(0, 0, 20)
+        sheet.set_column(1, awaycol, 12)
+        for i in range(3, awaycol, 3):
+            sheet.set_column(i, i, 0.5)
 
         if i != len(games) - 1:
             sheet.write_string(0, 3 * i + 3, ' ')
