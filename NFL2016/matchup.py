@@ -15,7 +15,8 @@ compstat = {'TDF': 'TDA', 'TDA': 'TDF', #Dictionary to use to compare team stats
             'FGF': 'FGA', 'FGA': 'FGF',
             'SFF': 'SFA', 'SFA': 'SFF',
             'PAT1%F': 'PAT1%A', 'PAT1%A': 'PAT1%F',
-            'PAT2%F': 'PAT2%A', 'PAT2%A': 'PAT2%F'}
+            'PAT2%F': 'PAT2%A', 'PAT2%A': 'PAT2%F',
+            'D2C%F': 'D2C%A', 'D2C%A': 'D2C%F'}
 
 def round_percentage(percentage):
     '''
@@ -73,6 +74,14 @@ def get_opponent_stats(opponent):
         opponent_stats['PAT2%A'] = float(opp_stats['PAT2AS'].sum()) / opp_stats['PAT2AA'].sum()
     except ZeroDivisionError:
         opponent_stats['PAT2%A'] = .5
+    try:
+        opponent_stats['D2C%F'] = float(opp_stats['D2CF'].sum()) / (opp_stats['PAT1AA'].sum() + opp_stats['PAT2AA'].sum() - opp_stats['PAT1AS'].sum() - opp_stats['PAT2AS'].sum())
+    except ZeroDivisionError:
+        opponent_stats['D2C%F'] = 0.01
+    try:
+        opponent_stats['D2C%A'] = float(opp_stats['D2CA'].sum()) / (opp_stats['PAT1FA'].sum() + opp_stats['PAT2FA'].sum() - opp_stats['PAT1FS'].sum() - opp_stats['PAT2FS'].sum())
+    except ZeroDivisionError:
+        opponent_stats['D2C%A'] = 0.01
     return opponent_stats
 
 def get_residual_performance(team):
@@ -98,6 +107,8 @@ def get_residual_performance(team):
     score_df['PAT2%F'] = np.nan
     score_df['PAT1%A'] = np.nan
     score_df['PAT2%A'] = np.nan
+    score_df['D2C%F'] = np.nan
+    score_df['D2C%A'] = np.nan
 
     #For each week, add in percentages. If there is no denominator, assume values. Then add fields containing opponent averages
     for week in score_df.index:
@@ -117,6 +128,14 @@ def get_residual_performance(team):
             score_df['PAT2%A'][week] = float(score_df['PAT2AS'][week]) / score_df['PAT2AA'][week]
         except ZeroDivisionError:
             score_df['PAT2%A'][week] = 0.5
+        try:
+            score_df['D2C%F'][week] = float(score_df['D2CF'][week]) / (score_df['PAT1AA'][week] + score_df['PAT2AA'][week] - score_df['PAT1AS'][week] - score_df['PAT2AS'][week])
+        except ZeroDivisionError:
+            score_df['D2C%F'][week] = 0.01
+        try:
+            score_df['D2C%A'][week] = float(score_df['D2CA'][week]) / (score_df['PAT1FA'][week] + score_df['PAT2FA'][week] - score_df['PAT1FS'][week] - score_df['PAT2FS'][week])
+        except ZeroDivisionError:
+            score_df['D2C%A'][week] = 0.01
 
         opponent_stats = get_opponent_stats(score_df['OPP'][week])
         for stat in opponent_stats:
@@ -149,6 +168,17 @@ def get_residual_performance(team):
                 residual_stats[stat] = (score_df['R_PAT2%A'].multiply(score_df['PAT2AA'])).sum() / score_df['PAT2AA'].sum()
             except ZeroDivisionError:
                 residual_stats[stat] = 0.0
+        elif stat == 'D2C%F':
+            try:
+                residual_stats[stat] = (score_df['R_D2C%F'].multiply(score_df['PAT1AA'] + score_df['PAT2AA'] - score_df['PAT1AS'] - score_df['PAT2AS'])).sum() / (score_df['PAT1AA'] + score_df['PAT2AA'] - score_df['PAT1AS'] - score_df['PAT2AS']).sum()
+            except ZeroDivisionError:
+                residual_stats[stat] = 0.0
+        elif stat == 'D2C%A':
+            try:
+                residual_stats[stat] = (score_df['R_D2C%A'].multiply(score_df['PAT1FA'] + score_df['PAT2FA'] - score_df['PAT1FS'] - score_df['PAT2FS'])).sum() / (score_df['PAT1FA'] + score_df['PAT2FA'] - score_df['PAT1FS'] - score_df['PAT2FS']).sum()
+            except ZeroDivisionError:
+                residual_stats[stat] = 0.0
+        
         try:
             residual_stats['GOFOR2'] = float(score_df['PAT2FA'].sum()) / score_df['TDF'].sum()
         except ZeroDivisionError:
@@ -205,6 +235,16 @@ def get_expected_scores(team_1_stats, team_2_stats, team_1_df, team_2_df):
             expected_scores.update({'PAT2PROB': pat2prob})
         else:
             expected_scores.update({'PAT2PROB': 0.5})
+
+        try:
+            d2cprob = mean([team_2_stats['D2C%F'] + team_1_df['D2CA'].astype('float').sum() / (team_1_df['PAT1AA'] + team_1_df['PAT2AA'] - team_1_df['PAT1AS'] - team_1_df['PAT2AS']).sum(),
+                            team_1_stats['D2C%A'] + team_2_df['D2CF'].astype('float').sum() / (team_2_df['PAT1FA'] + team_2_df['PAT2FA'] - team_2_df['PAT1FS'] -team_2_df['PAT2FS']).sum()])
+        except ZeroDivisionError:
+            d2cprob = np.nan
+        if not math.isnan(d2cprob):
+            expected_scores['D2CPROB'] = d2cprob
+        else:
+            expected_scores['D2CPROB'] = 0.01 
     
     return expected_scores
 
@@ -240,6 +280,7 @@ def get_score(expected_scores):
         sfs = poisson(0.01)
     score = score + 2 * sfs
 
+    d2c = 0
     #Add PATs
     for td in range(tds):
         go_for_2_determinant = uniform(0, 1)
@@ -248,15 +289,23 @@ def get_score(expected_scores):
             if successful_pat_determinant <= expected_scores['PAT2PROB']:
                 score = score + 2
             else:
-                continue
+                d2c_determinant = uniform(0, 1)
+                if d2c_determinant <= expected_scores['D2CPROB']:
+                    d2c += 1
+                else:
+                    continue
 
         else: #Going for 1
             successful_pat_determinant = uniform(0, 1)
             if successful_pat_determinant <= expected_scores['PAT1PROB']:
                 score = score + 1
             else:
-                continue
-    return score
+                d2c_determinant = uniform(0, 1)
+                if d2c_determinant <= expected_scores['D2CPROB']:
+                    d2c += 1
+                else:
+                    continue
+    return score, d2c
 
 def game(team_1, team_2,
          expected_scores_1, expected_scores_2):
@@ -279,8 +328,10 @@ def game(team_1, team_2,
     Summary (dict):
         Summary of game's results
     '''
-    score_1 = get_score(expected_scores_1)
-    score_2 = get_score(expected_scores_2)
+    (score_1, d2c2) = get_score(expected_scores_1)
+    (score_2, d2c1) = get_score(expected_scores_2)
+    score_1 += 2*d2c1
+    score_2 += 2*d2c2
 
     if score_1 > score_2: #Give team 1 a win if their score is higher
         win_1 = 1.
