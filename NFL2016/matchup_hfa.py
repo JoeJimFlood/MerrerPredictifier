@@ -211,11 +211,11 @@ def get_venue_adjustments(team_df, venue):
     assert venue in [-1, 0, 1], 'Venue must be equal to -1 for away, 1 for home, or 0 for neutral'
 
     if not venue:
-        venue_adjustments = {'TDF': 0, 'TDA': 0,
-                             'FGF': 0, 'FGA': 0,
-                             'SFF': 0, 'SFA': 0,
-                             'PAT1%F': 0, 'PAT1%A': 0,
-                             'PAT2%F': 0, 'PAT2%A': 0}
+        venue_adjustments = {'TDF': 0., 'TDA': 0.,
+                             'FGF': 0., 'FGA': 0.,
+                             'SFF': 0., 'SFA': 0.,
+                             'PAT1%F': 0., 'PAT1%A': 0.,
+                             'PAT2%F': 0., 'PAT2%A': 0.}
         return venue_adjustments
 
     venue_df = team_df[team_df['VENUE'] == venue]

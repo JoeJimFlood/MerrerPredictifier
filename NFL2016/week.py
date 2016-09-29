@@ -6,7 +6,7 @@ import collections
 import os
 import matplotlib.pyplot as plt
 
-venue = True
+venue = False
 if venue:
     import matchup_hfa as matchup
 else:
@@ -14,25 +14,24 @@ else:
 
 week_timer = time.time()
 
-week_number = '3V'
+week_number = '4V'
 
 matchups = collections.OrderedDict()
-matchups['Thursday Night'] = [('NE', 'HOU')]
-matchups['Sunday Morning'] = [('BUF', 'ARI'),
-                              ('TEN', 'OAK'),
-                              ('NYG', 'WAS'),
-                              ('MIA', 'CLE'),
-                              ('JAX', 'BAL'),
-                              ('GB', 'DET'),
-                              ('CIN', 'DEN'),
-                              ('CAR', 'MIN')]
-matchups['Sunday Afternoon'] = [('TB', 'LA'),
-                                ('SEA', 'SF'),
-                                ('KC', 'NYJ'),
-                                ('IND', 'SD'),
-                                ('PHI', 'PIT')]
-matchups['Sunday Night'] = [('DAL', 'CHI')]
-matchups['Monday Night'] = [('NO', 'ATL')]
+matchups['Thursday Night'] = [('MIA', 'CIN')]
+matchups['London'] = [('JAX', 'IND', True)]
+matchups['Sunday Morning'] = [('HOU', 'TEN'),
+                              ('WAS', 'CLE'),
+                              ('NYJ', 'SEA'),
+                              ('NE', 'BUF'),
+                              ('ATL', 'CAR'),
+                              ('BAL', 'OAK'),
+                              ('CHI', 'DET')]
+matchups['Sunday Afternoon'] = [('TB', 'DEN'),
+                                ('ARI', 'LA'),
+                                ('SD', 'NO'),
+                                ('SF', 'DAL')]
+matchups['Sunday Night'] = [('PIT', 'KC')]
+matchups['Monday Night'] = [('MIN', 'NYG')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -91,7 +90,10 @@ for game_time in matchups:
         sheet.write_string(0, homecol, name_map[home], team_formats[home])
         sheet.write_string(0, awaycol, name_map[away], team_formats[away])
             
-        results = matchup.matchup(home, away)
+        if len(games[i]) == 3:
+            results = matchup.matchup(home, away, games[i][2])
+        else:
+            results = matchup.matchup(home, away)
         probwin = results['ProbWin']
         sheet.write_number(1, homecol, probwin[home], percent_format)
         sheet.write_number(1, awaycol, probwin[away], percent_format)
