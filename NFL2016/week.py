@@ -6,7 +6,7 @@ import collections
 import os
 import matplotlib.pyplot as plt
 
-venue = False
+venue = True
 if venue:
     import matchup_hfa as matchup
 else:
@@ -14,24 +14,23 @@ else:
 
 week_timer = time.time()
 
-week_number = '4V'
+week_number = '5V'
 
 matchups = collections.OrderedDict()
-matchups['Thursday Night'] = [('MIA', 'CIN')]
-matchups['London'] = [('JAX', 'IND', True)]
-matchups['Sunday Morning'] = [('HOU', 'TEN'),
-                              ('WAS', 'CLE'),
-                              ('NYJ', 'SEA'),
-                              ('NE', 'BUF'),
-                              ('ATL', 'CAR'),
-                              ('BAL', 'OAK'),
-                              ('CHI', 'DET')]
-matchups['Sunday Afternoon'] = [('TB', 'DEN'),
-                                ('ARI', 'LA'),
-                                ('SD', 'NO'),
-                                ('SF', 'DAL')]
-matchups['Sunday Night'] = [('PIT', 'KC')]
-matchups['Monday Night'] = [('MIN', 'NYG')]
+matchups['Thursday Night'] = [('SF', 'ARI')]
+matchups['Sunday Morning'] = [('CLE', 'NE'),
+                              ('DET', 'PHI'),
+                              ('IND', 'CHI'),
+                              ('MIA', 'TEN'),
+                              ('BAL', 'WAS'),
+                              ('MIN', 'HOU'),
+                              ('PIT', 'NYJ')]
+matchups['Sunday Afternoon'] = [('DEN', 'ATL'),
+                                ('DAL', 'CIN'),
+                                ('LA', 'BUF'),
+                                ('OAK', 'SD')]
+matchups['Sunday Night'] = [('GB', 'NYG')]
+matchups['Monday Night'] = [('CAR', 'TB')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
