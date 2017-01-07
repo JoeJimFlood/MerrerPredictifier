@@ -6,7 +6,7 @@ import collections
 import os
 import matplotlib.pyplot as plt
 
-venue = True
+venue = False
 if venue:
     import matchup_hfa as matchup
 else:
@@ -14,25 +14,13 @@ else:
 
 week_timer = time.time()
 
-week_number = '17V'
+week_number = 'WC'
 
 matchups = collections.OrderedDict()
-matchups['Sunday Morning'] = [('CIN', 'BAL'),
-                              ('TEN', 'HOU'),
-                              ('TB', 'CAR'),
-                              ('PIT', 'CLE'),
-                              ('PHI', 'DAL'),
-                              ('NYJ', 'BUF'),
-                              ('MIN', 'CHI'),
-                              ('IND', 'JAX'),
-                              ('MIA', 'NE')]
-matchups['Sunday Afternoon'] = [('SD', 'KC'),
-                                ('LA', 'ARI'),
-                                ('DEN', 'OAK'),
-                                ('WAS', 'NYG'),
-                                ('SF', 'SEA'),
-                                ('ATL', 'NO')]
-matchups['Sunday Night'] = [('DET', 'GB')]
+matchups['Saturday'] = [('HOU', 'OAK'),
+                        ('SEA', 'DET')]
+matchups['Sunday'] = [('PIT', 'MIA'),
+                      ('GB', 'NYG')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -119,7 +107,7 @@ for game_time in matchups:
         awin = probwin[away]
         draw = 1 - hwin - awin
 
-        plt.subplot(4, 4, counter)
+        plt.subplot(2, 2, counter)
         labels = [home, away]
         values = [hwin, awin]
         c = [colors[home][0], colors[away][0]]
