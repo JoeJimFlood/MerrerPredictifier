@@ -14,13 +14,37 @@ else:
 
 week_timer = time.time()
 
-week_number = 'DivV'
+week_number = 'DivMatrixV'
 
 matchups = collections.OrderedDict()
-matchups['Saturday'] = [('ATL', 'SEA'),
-                        ('NE', 'HOU')]
-matchups['Sunday'] = [('DAL', 'GB'),
-                      ('KC', 'PIT')]
+matchups['NE'] = [('NE', 'KC'),
+                  ('NE', 'PIT'),
+                  ('NE', 'HOU'),
+                  ('NE', 'DAL', True),
+                  ('NE', 'ATL', True),
+                  ('NE', 'SEA', True),
+                  ('NE', 'GB', True)]
+matchups['KC'] = [('KC', 'PIT'),
+                  ('KC', 'HOU'),
+                  ('KC', 'DAL', True),
+                  ('KC', 'ATL', True),
+                  ('KC', 'SEA', True),
+                  ('KC', 'GB', True)]
+matchups['PIT'] = [('PIT', 'HOU'),
+                   ('PIT', 'DAL', True),
+                   ('PIT', 'ATL', True),
+                   ('PIT', 'SEA', True),
+                   ('PIT', 'GB', True)]
+matchups['HOU'] = [('HOU', 'DAL', True),
+                   ('HOU', 'ATL', True),
+                   ('HOU', 'SEA', True),
+                   ('HOU', 'GB', True)]
+matchups['DAL'] = [('DAL', 'ATL'),
+                   ('DAL', 'SEA'),
+                   ('DAL', 'GB')]
+matchups['ATL'] = [('ATL', 'SEA'),
+                   ('ATL', 'GB')]
+matchups['SEA'] = [('SEA', 'GB')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -107,7 +131,7 @@ for game_time in matchups:
         awin = probwin[away]
         draw = 1 - hwin - awin
 
-        plt.subplot(2, 2, counter)
+        plt.subplot(5, 6, counter)
         labels = [home, away]
         values = [hwin, awin]
         c = [colors[home][0], colors[away][0]]

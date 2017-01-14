@@ -139,9 +139,9 @@ def get_residual_performance(team):
 
         opponent_stats = get_opponent_stats(score_df['OPP'][week])
         for stat in opponent_stats:
-            if week == 1:
-                score_df['OPP_' + stat] = np.nan       
-            score_df['OPP_' + stat][week] = opponent_stats[stat]  
+            if str(week) == '1':
+                score_df['OPP_' + stat] = np.nan      
+            score_df['OPP_' + stat][week] = opponent_stats[stat]
             
     #Compute difference between team's statistics and their opponents averages         
     for stat in opponent_stats:
