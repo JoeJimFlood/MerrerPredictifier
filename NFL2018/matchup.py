@@ -9,7 +9,8 @@ import math
 
 po = True
 
-teamsheetpath = sys.path[0] + '/teamcsvs/'
+stadium_locs = pd.read_csv(os.path.join(os.path.split(__file__)[0], 'StadiumLocs.csv'), index_col = 0)
+teamsheetpath = os.path.join(os.path.split(__file__)[0], 'teamcsvs')
 
 compstat = {'TDF': 'TDA', 'TDA': 'TDF', #Dictionary to use to compare team stats with opponent stats
             'FGF': 'FGA', 'FGA': 'FGF',
@@ -17,6 +18,64 @@ compstat = {'TDF': 'TDA', 'TDA': 'TDF', #Dictionary to use to compare team stats
             'PAT1%F': 'PAT1%A', 'PAT1%A': 'PAT1%F',
             'PAT2%F': 'PAT2%A', 'PAT2%A': 'PAT2%F',
             'D2C%F': 'D2C%A', 'D2C%A': 'D2C%F'}
+
+def geodesic_distance(olat, olng, dlat, dlng):
+    '''
+    Returns geodesic distance in percentage of half the earth's circumference between two points on the earth's surface
+
+    Parameters
+    ----------
+    olat (float):
+        Origin latitude
+    olng (float):
+        Origin longitude
+    dlat (float):
+        Destination latitude
+    dlng (float):
+        Destination longitude
+
+    Returns
+    -------
+    distance (float):
+        Distance between input points in proportion of half the earth's circumference (returns 1 if input points are antipodes)
+    '''
+    scale = math.tau/360
+    olat *= scale
+    olng *= scale
+    dlat *= scale
+    dlng *= scale
+
+    delta_lat = (dlat - olat)
+    delta_lng = (dlng - olng)
+
+    a = math.sin(delta_lat/2)**2 + math.cos(olat)*math.cos(dlat)*math.sin(delta_lng/2)**2
+    return 4*math.atan2(math.sqrt(a), math.sqrt(1-a))/math.tau
+
+def get_travel_weight(venue, home_lat, home_lng, reference_distance):
+    '''
+    Gets the travel weight based on a venue, a team's home lat/long coordinates, and a reference distance
+
+    Parameters
+    ----------
+    venue (str):
+        Reference venue
+    home_lat (float):
+        Team's home latitude
+    home_lng (float):
+        Team's home longitude
+    reference_distance (float):
+        Distance to compare travel distance to. Equal to 1 if the travel distance equals the reference distance
+
+    Returns
+    -------
+    weight (float):
+        Travel-based weight for averaging team statistics
+    '''
+    global stadium_locs
+    (venue_lat, venue_lng) = stadium_locs.loc[venue, ['Lat', 'Long']]
+    
+    travel_distance = geodesic_distance(home_lat, home_lng, venue_lat, venue_lng)
+    return 1 - abs(travel_distance - reference_distance)
 
 def round_percentage(percentage):
     '''
@@ -34,7 +93,7 @@ def round_percentage(percentage):
     '''
     return percentage.replace('.0', '')
 
-def get_opponent_stats(opponent):
+def get_opponent_stats(opponent, venue):
     '''
     Calculates the statistics of each teams oppopnent
 
@@ -42,6 +101,8 @@ def get_opponent_stats(opponent):
     ----------
     opponent (str):
         Week's opponent
+    venue (str):
+        Game venue. Must be index in StatiumLocs.csv
 
     Returns
     -------
@@ -49,37 +110,47 @@ def get_opponent_stats(opponent):
         Dictionary of statistics
     '''
     opponent_stats = {}
-    global teamsheetpath
+    global teamsheetpath, stadium_locs
     opp_stats = pd.DataFrame.from_csv(teamsheetpath + opponent + '.csv')
+
+    #Compute distance weights for opponent
+    (venue_lat, venue_lng) = stadium_locs.loc[venue, ['Lat', 'Long']]
+    (opponent_home_lat, opponent_home_lng) = stadium_locs.loc[opponent, ['Lat', 'Long']]
+    opponent_reference_distance = geodesic_distance(opponent_home_lat, opponent_home_lng, venue_lat, venue_lng)
+
+    def get_opponent_weight(location):
+        return get_travel_weight(location, opponent_home_lat, opponent_home_lng, opponent_reference_distance)
+
+    opp_stats['Weight'] = opp_stats['VENUE'].apply(get_opponent_weight)
 
     #Compute easy to calculate stats
     for stat in opp_stats.columns:
         if stat in ['TDF', 'FGF', 'SFF', 'TDA', 'FGA', 'SFA']:
-            opponent_stats[stat] = opp_stats[stat].mean()
+            opponent_stats[stat] = np.average(opp_stats[stat], weights = opp_stats['Weight'])
 
     #Calculate percentages. If unable, insert assumed values
     try:
-        opponent_stats['PAT1%F'] = float(opp_stats['PAT1FS'].sum()) / opp_stats['PAT1FA'].sum()
+        opponent_stats['PAT1%F'] = float((opp_stats['Weight']*opp_stats['PAT1FS']).sum()) / (opp_stats['Weight']*opp_stats['PAT1FA']).sum()
     except ZeroDivisionError:
-        opponent_stats['PAT1%F'] = .99
+        opponent_stats['PAT1%F'] = .942
     try:
-        opponent_stats['PAT2%F'] = float(opp_stats['PAT2FS'].sum()) / opp_stats['PAT2FA'].sum()
+        opponent_stats['PAT2%F'] = float((opp_stats['Weight']*opp_stats['PAT2FS']).sum()) / (opp_stats['Weight']*opp_stats['PAT2FA']).sum()
     except ZeroDivisionError:
-        opponent_stats['PAT2%F'] = .5
+        opponent_stats['PAT2%F'] = .479
     try:
-        opponent_stats['PAT1%A'] = float(opp_stats['PAT1AS'].sum()) / opp_stats['PAT1AA'].sum()
+        opponent_stats['PAT1%A'] = float((opp_stats['Weight']*opp_stats['PAT1AS']).sum()) / (opp_stats['Weight']*opp_stats['PAT1AA']).sum()
     except ZeroDivisionError:
-        opponent_stats['PAT1%A'] = .99
+        opponent_stats['PAT1%A'] = .942
     try:
-        opponent_stats['PAT2%A'] = float(opp_stats['PAT2AS'].sum()) / opp_stats['PAT2AA'].sum()
+        opponent_stats['PAT2%A'] = float((opp_stats['Weight']*opp_stats['PAT2AS']).sum()) / (opp_stats['Weight']*opp_stats['PAT2AA']).sum()
     except ZeroDivisionError:
-        opponent_stats['PAT2%A'] = .5
+        opponent_stats['PAT2%A'] = .479
     try:
-        opponent_stats['D2C%F'] = float(opp_stats['D2CF'].sum()) / (opp_stats['PAT1AA'].sum() + opp_stats['PAT2AA'].sum() - opp_stats['PAT1AS'].sum() - opp_stats['PAT2AS'].sum())
+        opponent_stats['D2C%F'] = float((opp_stats['Weight']*opp_stats['D2CF']).sum()) / ((opp_stats['Weight']*opp_stats['PAT1AA']).sum() + (opp_stats['Weight']*opp_stats['PAT2AA']).sum() - (opp_stats['Weight']*opp_stats['PAT1AS']).sum() - (opp_stats['Weight']*opp_stats['PAT2AS']).sum())
     except ZeroDivisionError:
         opponent_stats['D2C%F'] = 0.01
     try:
-        opponent_stats['D2C%A'] = float(opp_stats['D2CA'].sum()) / (opp_stats['PAT1FA'].sum() + opp_stats['PAT2FA'].sum() - opp_stats['PAT1FS'].sum() - opp_stats['PAT2FS'].sum())
+        opponent_stats['D2C%A'] = float(opp_stats['D2CA'].sum()) / ((opp_stats['Weight']*opp_stats['PAT1FA']).sum() + (opp_stats['Weight']*opp_stats['PAT2FA']).sum() - (opp_stats['Weight']*opp_stats['PAT1FS']).sum() - (opp_stats['Weight']*opp_stats['PAT2FS']).sum())
     except ZeroDivisionError:
         opponent_stats['D2C%A'] = 0.01
     return opponent_stats
@@ -98,7 +169,7 @@ def get_residual_performance(team):
     residual_stats (dict):
         Dictionary of team's residual stats
     '''
-    global teamsheetpath
+    global teamsheetpath, stadium_locs
     score_df = pd.DataFrame.from_csv(teamsheetpath + team + '.csv')
     residual_stats = {}
     
@@ -115,19 +186,19 @@ def get_residual_performance(team):
         try:
             score_df['PAT1%F'][week] = float(score_df['PAT1FS'][week]) / score_df['PAT1FA'][week]
         except ZeroDivisionError:
-            score_df['PAT1%F'][week] = 0.94
+            score_df['PAT1%F'][week] = 0.942
         try:
             score_df['PAT2%F'][week] = float(score_df['PAT2FS'][week]) / score_df['PAT2FA'][week]
         except ZeroDivisionError:
-            score_df['PAT2%F'][week] = 0.5
+            score_df['PAT2%F'][week] = 0.479
         try:
             score_df['PAT1%A'][week] = float(score_df['PAT1AS'][week]) / score_df['PAT1AA'][week]
         except ZeroDivisionError:
-            score_df['PAT1%A'][week] = 0.94
+            score_df['PAT1%A'][week] = 0.942
         try:
             score_df['PAT2%A'][week] = float(score_df['PAT2AS'][week]) / score_df['PAT2AA'][week]
         except ZeroDivisionError:
-            score_df['PAT2%A'][week] = 0.5
+            score_df['PAT2%A'][week] = 0.479
         try:
             score_df['D2C%F'][week] = float(score_df['D2CF'][week]) / (score_df['PAT1AA'][week] + score_df['PAT2AA'][week] - score_df['PAT1AS'][week] - score_df['PAT2AS'][week])
         except ZeroDivisionError:
@@ -137,7 +208,8 @@ def get_residual_performance(team):
         except ZeroDivisionError:
             score_df['D2C%A'][week] = 0.01
 
-        opponent_stats = get_opponent_stats(score_df['OPP'][week])
+        #Read in opponent's stats
+        opponent_stats = get_opponent_stats(score_df['OPP'][week], score_df['VENUE'][week])
         for stat in opponent_stats:
             if str(week) == '1':
                 score_df['OPP_' + stat] = np.nan      
@@ -145,37 +217,41 @@ def get_residual_performance(team):
             
     #Compute difference between team's statistics and their opponents averages         
     for stat in opponent_stats:
+
+        if stat == 'Weight':
+            continue
+
         score_df['R_' + stat] = score_df[stat] - score_df['OPP_' + compstat[stat]]
         if stat in ['TDF', 'FGF', 'SFF', 'TDA', 'FGA', 'SFA']:
-            residual_stats[stat] = score_df['R_' + stat].mean()
+            residual_stats[stat] = np.average(score_df['R_' + stat], weights = score_df['Weight'])
         elif stat == 'PAT1%F':
             try:
-                residual_stats[stat] = (score_df['R_PAT1%F'].multiply(score_df['PAT1FA'])).sum() / score_df['PAT1FA'].sum()
+                residual_stats[stat] = (score_df['R_PAT1%F'].multiply(score_df['PAT1FA'])*score_df['Weight']).sum() / (score_df['PAT1FA']*score_df['Weight']).sum()
             except ZeroDivisionError:
                 residual_stats[stat] = 0.0
         elif stat == 'PAT2%F':
             try:
-                residual_stats[stat] = (score_df['R_PAT2%F'].multiply(score_df['PAT2FA'])).sum() / score_df['PAT2FA'].sum()
+                residual_stats[stat] = (score_df['R_PAT2%F'].multiply(score_df['PAT2FA'])*score_df['Weight']).sum() / (score_df['PAT2FA']*score_df['Weight']).sum()
             except ZeroDivisionError:
                 residual_stats[stat] = 0.0
         elif stat == 'PAT1%A':
             try:
-                residual_stats[stat] = (score_df['R_PAT1%A'].multiply(score_df['PAT1AA'])).sum() / score_df['PAT1AA'].sum()
+                residual_stats[stat] = (score_df['R_PAT1%A'].multiply(score_df['PAT1AA'])*score_df['Weight']).sum() / (score_df['PAT1AA']*score_df['Weight']).sum()
             except ZeroDivisionError:
                 residual_stats[stat] = 0.0
         elif stat == 'PAT2%A':
             try:
-                residual_stats[stat] = (score_df['R_PAT2%A'].multiply(score_df['PAT2AA'])).sum() / score_df['PAT2AA'].sum()
+                residual_stats[stat] = (score_df['R_PAT2%A'].multiply(score_df['PAT2AA'])*score_df['Weight']).sum() / (score_df['PAT2AA']*score_df['Weight']).sum()
             except ZeroDivisionError:
                 residual_stats[stat] = 0.0
         elif stat == 'D2C%F':
             try:
-                residual_stats[stat] = (score_df['R_D2C%F'].multiply(score_df['PAT1AA'] + score_df['PAT2AA'] - score_df['PAT1AS'] - score_df['PAT2AS'])).sum() / (score_df['PAT1AA'] + score_df['PAT2AA'] - score_df['PAT1AS'] - score_df['PAT2AS']).sum()
+                residual_stats[stat] = (score_df['R_D2C%F'].multiply(score_df['PAT1AA'] + score_df['PAT2AA'] - score_df['PAT1AS'] - score_df['PAT2AS'])*score_df['Weight']).sum() / ((score_df['PAT1AA'] + score_df['PAT2AA'] - score_df['PAT1AS'] - score_df['PAT2AS'])*score_df['Weight']).sum()
             except ZeroDivisionError:
                 residual_stats[stat] = 0.0
         elif stat == 'D2C%A':
             try:
-                residual_stats[stat] = (score_df['R_D2C%A'].multiply(score_df['PAT1FA'] + score_df['PAT2FA'] - score_df['PAT1FS'] - score_df['PAT2FS'])).sum() / (score_df['PAT1FA'] + score_df['PAT2FA'] - score_df['PAT1FS'] - score_df['PAT2FS']).sum()
+                residual_stats[stat] = (score_df['R_D2C%A'].multiply(score_df['PAT1FA'] + score_df['PAT2FA'] - score_df['PAT1FS'] - score_df['PAT2FS'])*score_df['Weight']).sum() / ((score_df['PAT1FA'] + score_df['PAT2FA'] - score_df['PAT1FS'] - score_df['PAT2FS'])*score_df['Weight']).sum()
             except ZeroDivisionError:
                 residual_stats[stat] = 0.0
         
