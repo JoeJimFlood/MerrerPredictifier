@@ -284,37 +284,37 @@ def get_expected_scores(team_1_stats, team_2_stats, team_1_df, team_2_df):
     '''
     expected_scores = {}
     for stat in team_1_stats:
-        expected_scores['TD'] = mean([team_1_stats['TDF'] + team_2_df['TDA'].mean(),
-                                      team_2_stats['TDA'] + team_1_df['TDF'].mean()])
-        expected_scores['FG'] = mean([team_1_stats['FGF'] + team_2_df['FGA'].mean(),
-                                      team_2_stats['FGA'] + team_1_df['FGF'].mean()])
-        expected_scores['S'] = mean([team_1_stats['SFF'] + team_2_df['SFA'].mean(),
-                                     team_2_stats['SFA'] + team_1_df['SFF'].mean()])
+        expected_scores['TD'] = mean([team_1_stats['TDF'] + np.average(team_2_df['TDA'], weights = team_2_df['Weight']),
+                                      team_2_stats['TDA'] + np.average(team_1_df['TDF'], weights = team_1_df['Weight'])])
+        expected_scores['FG'] = mean([team_1_stats['FGF'] + np.average(team_2_df['FGA'], weights = team_2_df['Weight']),
+                                      team_2_stats['FGA'] + np.average(team_1_df['FGF'], weights = team_1_df['Weight'])])
+        expected_scores['S'] = mean([team_1_stats['SFF'] + np.average(team_2_df['SFA'], weights = team_2_df['Weight']),
+                                     team_2_stats['SFA'] + np.average(team_1_df['SFF'], weights = team_1_df['Weight'])])
 
         expected_scores['GOFOR2'] = team_1_stats['GOFOR2']
         try:
-            pat1prob = mean([team_1_stats['PAT1%F'] + team_2_df['PAT1AS'].astype('float').sum() / team_2_df['PAT1AA'].sum(),
-                             team_2_stats['PAT1%A'] + team_1_df['PAT1FS'].astype('float').sum() / team_1_df['PAT1FA'].sum()])
+            pat1prob = mean([team_1_stats['PAT1%F'] + (team_2_df['Weight']*team_2_df['PAT1AS']).astype('float').sum() / (team_2_df['Weight']*team_2_df['PAT1AA']).sum(),
+                             team_2_stats['PAT1%A'] + (team_1_df['Weight']*team_1_df['PAT1FS']).astype('float').sum() / (team_1_df['Weight']*team_1_df['PAT1FA']).sum()])
         except ZeroDivisionError:
             pat1prob = np.nan
         if not math.isnan(pat1prob):
             expected_scores['PAT1PROB'] = pat1prob
         else:
-            expected_scores['PAT1PROB'] = 0.94
+            expected_scores['PAT1PROB'] = 0.942
         
         try:
-            pat2prob = mean([team_1_stats['PAT2%F'] + team_2_df['PAT2AS'].astype('float').sum() / team_2_df['PAT2AA'].sum(),
-                             team_2_stats['PAT2%A'] + team_1_df['PAT2FS'].astype('float').sum() / team_1_df['PAT2FA'].sum()])
+            pat2prob = mean([team_1_stats['PAT2%F'] + (team_2_df['Weight']*team_2_df['PAT2AS']).astype('float').sum() / (team_2_df['Weight']*team_2_df['PAT2AA']).sum(),
+                             team_2_stats['PAT2%A'] + (team_1_df['Weight']*team_1_df['PAT2FS']).astype('float').sum() / (team_1_df['Weight']*team_1_df['PAT2FA']).sum()])
         except ZeroDivisionError:
             pat2prob = np.nan
         if not math.isnan(pat2prob):
             expected_scores.update({'PAT2PROB': pat2prob})
         else:
-            expected_scores.update({'PAT2PROB': 0.5})
+            expected_scores.update({'PAT2PROB': 0.479})
 
         try:
-            d2cprob = mean([team_2_stats['D2C%F'] + team_1_df['D2CA'].astype('float').sum() / (team_1_df['PAT1AA'] + team_1_df['PAT2AA'] - team_1_df['PAT1AS'] - team_1_df['PAT2AS']).sum(),
-                            team_1_stats['D2C%A'] + team_2_df['D2CF'].astype('float').sum() / (team_2_df['PAT1FA'] + team_2_df['PAT2FA'] - team_2_df['PAT1FS'] -team_2_df['PAT2FS']).sum()])
+            d2cprob = mean([team_2_stats['D2C%F'] + (team_1_df['Weight']*team_1_df['D2CA']).astype('float').sum() / (team_1_df['Weight']*(team_1_df['PAT1AA'] + team_1_df['PAT2AA'] - team_1_df['PAT1AS'] - team_1_df['PAT2AS'])).sum(),
+                            team_1_stats['D2C%A'] + (team_2_df['Weight']*team_2_df['D2CF']).astype('float').sum() / (team_2_df['Weight']*(team_2_df['PAT1FA'] + team_2_df['PAT2FA'] - team_2_df['PAT1FS'] - team_2_df['PAT2FS'])).sum()])
         except ZeroDivisionError:
             d2cprob = np.nan
         if not math.isnan(d2cprob):
