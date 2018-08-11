@@ -14,10 +14,15 @@ else:
 
 week_timer = time.time()
 
-week_number = 'SuperBowl'
+week_number = 'ConMatrix'
 
 matchups = collections.OrderedDict()
-matchups['Super Bowl LI'] = [('NE', 'ATL')]
+matchups['NE'] = [('NE', 'PIT'),
+                  ('NE', 'ATL'),
+                  ('NE', 'GB')]
+matchups['PIT'] = [('PIT', 'ATL'),
+                   ('PIT', 'GB')]
+matchups['ATL'] = [('ATL', 'GB')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -104,7 +109,7 @@ for game_time in matchups:
         awin = probwin[away]
         draw = 1 - hwin - awin
 
-        plt.subplot(1, 1, counter)
+        plt.subplot(5, 6, counter)
         labels = [home, away]
         values = [hwin, awin]
         c = [colors[home][0], colors[away][0]]
