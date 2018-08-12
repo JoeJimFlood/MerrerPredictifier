@@ -424,7 +424,7 @@ def game(team_1, team_2,
 
     return summary
             
-def matchup(team_1, team_2):
+def matchup(team_1, team_2, venue = None):
     '''
     The main script. Simulates a matchup between two teams at least 5 million times
 
@@ -434,12 +434,18 @@ def matchup(team_1, team_2):
         The first team's initials
     team_2 (str):
         The second team's initials
+    venue (str, optional):
+        Code for venue. If not set it will be team_1
 
     Returns
     -------
     output (dict): #CreativeName
         Dictionary containing chances of winning and score distribution characteristics
     '''
+    #If no venue is specified, set venue to Team 1's location
+    if venue == None:
+        venue = team_1
+
     #Read in teams' performances and calculate expected scores based on them
     ts = time.time()
     team_1_season = pd.DataFrame.from_csv(teamsheetpath + team_1 + '.csv')

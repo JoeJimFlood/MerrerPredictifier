@@ -1,23 +1,22 @@
+import os
+os.chdir(os.path.dirname(__file__))
+
 import pandas as pd
 import xlsxwriter
 import sys
 import time
 import collections
-import os
 import matplotlib.pyplot as plt
 
-venue = False
-if venue:
-    import matchup_hfa as matchup
-else:
-    import matchup
+import matchup
+#import ranking
 
 week_timer = time.time()
 
-week_number = 'SuperBowl'
+week_number = 'Test'
 
 matchups = collections.OrderedDict()
-matchups['Super Bowl LI'] = [('NE', 'ATL')]
+matchups['Super Bowl LII'] = [('NE', 'PHI', 'MIN')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -25,7 +24,7 @@ def rgb2hex(r, g, b):
     b_hex = hex(b)[-2:].replace('x', '0')
     return '#' + r_hex + g_hex + b_hex
 
-location = os.getcwd().replace('\\', '/')
+location = os.path.split(__file__)[0]
 output_file = location + '/Weekly Forecasts/Week' + str(week_number) + '.xlsx'
 output_fig = location + '/Weekly Forecasts/Week' + str(week_number) + '.png'
 
