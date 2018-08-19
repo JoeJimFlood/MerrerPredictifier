@@ -13,10 +13,12 @@ import matchup
 
 week_timer = time.time()
 
-week_number = 'Test'
+week_number = 'Example'
 
 matchups = collections.OrderedDict()
-matchups['Super Bowl LII'] = [('NE', 'PHI', 'MIN')]
+matchups['Super Bowl LII'] = [('NE', 'PHI', 'MIN'),
+                              ('NE', 'PHI'),
+                              ('PHI', 'NE')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -103,7 +105,7 @@ for game_time in matchups:
         awin = probwin[away]
         draw = 1 - hwin - awin
 
-        plt.subplot(1, 1, counter)
+        plt.subplot(2, 2, counter)
         labels = [home, away]
         values = [hwin, awin]
         c = [colors[home][0], colors[away][0]]

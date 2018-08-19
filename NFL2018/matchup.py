@@ -10,7 +10,7 @@ import math
 po = True
 
 stadium_locs = pd.read_csv(os.path.join(os.path.split(__file__)[0], 'StadiumLocs.csv'), index_col = 0)
-teamsheetpath = os.path.join(os.path.split(__file__)[0], 'teamcsvs')
+teamsheetpath = os.path.join(os.path.split(os.path.abspath(__file__))[0], 'teamcsvs')
 
 compstat = {'TDF': 'TDA', 'TDA': 'TDF', #Dictionary to use to compare team stats with opponent stats
             'FGF': 'FGA', 'FGA': 'FGF',
@@ -111,7 +111,7 @@ def get_opponent_stats(opponent, venue):
     '''
     opponent_stats = {}
     global teamsheetpath, stadium_locs
-    opp_stats = pd.DataFrame.from_csv(teamsheetpath + opponent + '.csv')
+    opp_stats = pd.DataFrame.from_csv(os.path.join(teamsheetpath, opponent + '.csv'))
 
     #Compute distance weights for opponent
     (venue_lat, venue_lng) = stadium_locs.loc[venue, ['Lat', 'Long']]
@@ -155,7 +155,7 @@ def get_opponent_stats(opponent, venue):
         opponent_stats['D2C%A'] = 0.01
     return opponent_stats
 
-def get_residual_performance(team):
+def get_residual_performance(score_df):
     '''
     Compares teams weekly performances to their opponents averages and gets averages of residuals
 
@@ -170,7 +170,7 @@ def get_residual_performance(team):
         Dictionary of team's residual stats
     '''
     global teamsheetpath, stadium_locs
-    score_df = pd.DataFrame.from_csv(teamsheetpath + team + '.csv')
+    #score_df = pd.DataFrame.from_csv(os.path.join(teamsheetpath, team + '.csv'))
     residual_stats = {}
     
     #Initialize percentages with null values
@@ -211,9 +211,11 @@ def get_residual_performance(team):
         #Read in opponent's stats
         opponent_stats = get_opponent_stats(score_df['OPP'][week], score_df['VENUE'][week])
         for stat in opponent_stats:
-            if str(week) == '1':
-                score_df['OPP_' + stat] = np.nan      
-            score_df['OPP_' + stat][week] = opponent_stats[stat]
+            try:
+                score_df['OPP_' + stat][week] = opponent_stats[stat]
+            except KeyError: #Create column if it's not there
+                score_df['OPP_' + stat] = np.nan
+                score_df['OPP_' + stat][week] = opponent_stats[stat]
             
     #Compute difference between team's statistics and their opponents averages         
     for stat in opponent_stats:
@@ -446,12 +448,27 @@ def matchup(team_1, team_2, venue = None):
     if venue == None:
         venue = team_1
 
+    #Get reference distance for calculation of each team's geographic weights in averaging
+    (venue_lat, venue_lng) = stadium_locs.loc[venue, ['Lat', 'Long']]
+    (team_1_home_lat, team_1_home_lng) = stadium_locs.loc[team_1, ['Lat', 'Long']]
+    (team_2_home_lat, team_2_home_lng) = stadium_locs.loc[team_2, ['Lat', 'Long']]
+    team_1_reference_distance = geodesic_distance(team_1_home_lat, team_1_home_lng, venue_lat, venue_lng)
+    team_2_reference_distance = geodesic_distance(team_2_home_lat, team_2_home_lng, venue_lat, venue_lng)
+
+    def get_team_1_weight(location):
+        return get_travel_weight(location, team_1_home_lat, team_1_home_lng, team_1_reference_distance)
+
+    def get_team_2_weight(location):
+        return get_travel_weight(location, team_2_home_lat, team_2_home_lng, team_2_reference_distance)
+
     #Read in teams' performances and calculate expected scores based on them
     ts = time.time()
-    team_1_season = pd.DataFrame.from_csv(teamsheetpath + team_1 + '.csv')
-    team_2_season = pd.DataFrame.from_csv(teamsheetpath + team_2 + '.csv')
-    stats_1 = get_residual_performance(team_1)
-    stats_2 = get_residual_performance(team_2)
+    team_1_season = pd.DataFrame.from_csv(os.path.join(teamsheetpath, team_1 + '.csv'))
+    team_2_season = pd.DataFrame.from_csv(os.path.join(teamsheetpath, team_2 + '.csv'))
+    team_1_season['Weight'] = team_1_season['VENUE'].apply(get_team_1_weight)
+    team_2_season['Weight'] = team_2_season['VENUE'].apply(get_team_2_weight)
+    stats_1 = get_residual_performance(team_1_season)
+    stats_2 = get_residual_performance(team_2_season)
     expected_scores_1 = get_expected_scores(stats_1, stats_2, team_1_season, team_2_season)
     expected_scores_2 = get_expected_scores(stats_2, stats_1, team_2_season, team_1_season)
 
