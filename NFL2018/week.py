@@ -7,18 +7,32 @@ import sys
 import time
 import collections
 import matplotlib.pyplot as plt
+from math import log2
 
 import matchup
 #import ranking
 
 week_timer = time.time()
 
-week_number = 'Example'
+week_number = 2
 
 matchups = collections.OrderedDict()
-matchups['Super Bowl LII'] = [('NE', 'PHI', 'MIN'),
-                              ('NE', 'PHI'),
-                              ('PHI', 'NE')]
+matchups['Thursday Night'] = [('CIN', 'BAL')]
+matchups['Sunday Morning'] = [('ATL', 'CAR'),
+                              ('WAS', 'IND'),
+                              ('TEN', 'HOU'),
+                              ('TB', 'PHI'),
+                              ('PIT', 'KC'),
+                              ('NYJ', 'MIA'),
+                              ('BUF', 'LAC'),
+                              ('GB', 'MIN'),
+                              ('NO', 'CLE')]
+matchups['Sunday Afternoon'] = [('SF', 'DET'),
+                                ('LAR', 'ARI'),
+                                ('JAX', 'NE'),
+                                ('DEN', 'OAK')]
+matchups['Sunday Night'] = [('DAL', 'NYG')]
+matchups['Monday Night'] = [('CHI', 'SEA')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -27,8 +41,11 @@ def rgb2hex(r, g, b):
     return '#' + r_hex + g_hex + b_hex
 
 location = os.path.split(__file__)[0]
+stadium_file = location + '/StadiumLocs.csv'
 output_file = location + '/Weekly Forecasts/Week' + str(week_number) + '.xlsx'
 output_fig = location + '/Weekly Forecasts/Week' + str(week_number) + '.png'
+stadium_file = location + '/StadiumLocs.csv'
+stadiums = pd.read_csv(stadium_file, index_col = 0)
 
 n_games = 0
 for day in matchups:
@@ -45,7 +62,7 @@ for team in teams:
 
 name_map = pd.DataFrame.from_csv(location + '/names.csv')['NAME'].to_dict()
 
-plt.figure(figsize = (18, 18), dpi = 96)
+plt.figure(figsize = (24, 24), dpi = 96)
 plt.title('Week ' + str(week_number))
 counter = 0
 
@@ -55,6 +72,8 @@ index_format = week_book.add_format({'align': 'right', 'bold': True})
 score_format = week_book.add_format({'num_format': '#0', 'align': 'right'})
 mean_format = week_book.add_format({'num_format': '#0.0', 'align': 'right'})
 percent_format = week_book.add_format({'num_format': '#0%', 'align': 'right'})
+merged_format = week_book.add_format({'num_format': '#0.00', 'align': 'center'})
+merged_format2 = week_book.add_format({'num_format': '0.000', 'align': 'center'})
 for team in teams:
     team_formats[team] = week_book.add_format({'align': 'center', 'bold': True, 'border': True,
                                                 'bg_color': colors[team][0], 'font_color': colors[team][1]})
@@ -62,16 +81,29 @@ for team in teams:
 for game_time in matchups:
         
     sheet = week_book.add_worksheet(game_time)
-    sheet.write_string(1, 0, 'Chance of Winning', index_format)
-    sheet.write_string(2, 0, 'Expected Score', index_format)
+    sheet.write_string(1, 0, 'City', index_format)
+    sheet.write_string(2, 0, 'Quality', index_format)
+    sheet.write_string(3, 0, 'Entropy', index_format)
+    sheet.write_string(4, 0, 'Hype', index_format)
+    sheet.write_string(5, 0, 'Chance of Winning', index_format)
+    sheet.write_string(6, 0, 'Expected Score', index_format)
     for i in range(1, 20):
-        sheet.write_string(2+i, 0, str(5*i) + 'th Percentile Score', index_format)
-    sheet.freeze_panes(0, 1)
+        sheet.write_string(6+i, 0, str(5*i) + 'th Percentile Score', index_format)
+    sheet.freeze_panes(1, 1)
     games = matchups[game_time]
 
     for i in range(len(games)):
         home = games[i][0]
         away = games[i][1]
+
+        try:
+            venue = games[i][2]
+        except IndexError:
+            venue = games[i][0]
+        stadium = stadiums.loc[venue, 'Venue']
+        city = stadiums.loc[venue, 'City']
+        state = stadiums.loc[venue, 'State']
+
         homecol = 3 * i + 1
         awaycol = 3 * i + 2
         sheet.write_string(0, homecol, name_map[home], team_formats[home])
@@ -81,16 +113,31 @@ for game_time in matchups:
             results = matchup.matchup(home, away, games[i][2])
         else:
             results = matchup.matchup(home, away)
+        
         probwin = results['ProbWin']
-        sheet.write_number(1, homecol, probwin[home], percent_format)
-        sheet.write_number(1, awaycol, probwin[away], percent_format)
+
+        #Calculate hype
+        home_ranking = 0.5
+        away_ranking = 0.5
+        ranking_factor = (home_ranking + away_ranking) / 2
+        hwin = probwin[home]
+        awin = probwin[away]
+        entropy = -hwin*log2(hwin) - awin*log2(awin)
+        hype = 100 * ranking_factor * entropy
+
+        sheet.merge_range(1, homecol, 1, awaycol, city, merged_format)
+        sheet.merge_range(2, homecol, 2, awaycol, ranking_factor, merged_format2)
+        sheet.merge_range(3, homecol, 3, awaycol, entropy, merged_format2)
+        sheet.merge_range(4, homecol, 4, awaycol, hype, merged_format)
+        sheet.write_number(5, homecol, hwin, percent_format)
+        sheet.write_number(5, awaycol, awin, percent_format)
         home_dist = results['Scores'][home]
         away_dist = results['Scores'][away]
-        sheet.write_number(2, homecol, home_dist['mean'], mean_format)
-        sheet.write_number(2, awaycol, away_dist['mean'], mean_format)
+        sheet.write_number(6, homecol, home_dist['mean'], mean_format)
+        sheet.write_number(6, awaycol, away_dist['mean'], mean_format)
         for i in range(1, 20):
-            sheet.write_number(2+i, homecol, home_dist[str(5*i)+'%'], score_format)
-            sheet.write_number(2+i, awaycol, away_dist[str(5*i)+'%'], score_format)
+            sheet.write_number(6+i, homecol, home_dist[str(5*i)+'%'], score_format)
+            sheet.write_number(6+i, awaycol, away_dist[str(5*i)+'%'], score_format)
 
         sheet.set_column(0, 0, 20)
         sheet.set_column(1, awaycol, 12)
@@ -105,7 +152,19 @@ for game_time in matchups:
         awin = probwin[away]
         draw = 1 - hwin - awin
 
-        plt.subplot(2, 2, counter)
+        if counter == 5:
+            counter += 1
+
+        if counter == 10:
+            plt.savefig(output_fig.replace('.png', '-1.png'))
+            plt.clf()
+            plt.close()
+
+            counter = 1
+            plt.figure(figsize = (24, 24), dpi = 96)
+            plt.title('Week ' + str(week_number))
+
+        plt.subplot(3, 3, counter)
         labels = [home, away]
         values = [hwin, awin]
         c = [colors[home][0], colors[away][0]]
@@ -118,12 +177,12 @@ for game_time in matchups:
                 autopct='%.0f%%',
                 startangle = 90,
                 labeldistance = 1,
-                textprops = {'backgroundcolor': '#ffffff', 'ha': 'center', 'va': 'center'})
-        plt.title(name_map[home] + ' vs ' + name_map[away], size = 18)
+                textprops = {'backgroundcolor': '#ffffff', 'ha': 'center', 'va': 'center', 'fontsize': 18})
+        plt.title(name_map[home] + ' vs ' + name_map[away] + '\n' + stadium + '\n' + city + ', ' + state + '\n' + 'Hype: ' + str(int(round(hype, 0))), size = 18)
         plt.axis('equal')
 
 week_book.close()
 
-plt.savefig(output_fig)
+plt.savefig(output_fig.replace('.png', '-2.png'))
 
 print('Week ' + str(week_number) + ' predictions calculated in ' + str(round((time.time() - week_timer) / 60, 2)) + ' minutes')

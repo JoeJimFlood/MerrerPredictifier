@@ -10,7 +10,7 @@ import math
 po = True
 
 stadium_locs = pd.read_csv(os.path.join(os.path.split(__file__)[0], 'StadiumLocs.csv'), index_col = 0)
-teamsheetpath = os.path.join(os.path.split(os.path.abspath(__file__))[0], 'teamcsvs')
+teamsheetpath = os.path.join(os.path.split(os.path.abspath(__file__))[0], 'Score Tables')
 
 compstat = {'TDF': 'TDA', 'TDA': 'TDF', #Dictionary to use to compare team stats with opponent stats
             'FGF': 'FGA', 'FGA': 'FGF',
