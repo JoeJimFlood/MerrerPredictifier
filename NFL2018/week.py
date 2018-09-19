@@ -10,29 +10,29 @@ import matplotlib.pyplot as plt
 from math import log2
 
 import matchup
-#import ranking
+import ranking
 
 week_timer = time.time()
 
-week_number = 2
+week_number = 3
 
 matchups = collections.OrderedDict()
-matchups['Thursday Night'] = [('CIN', 'BAL')]
-matchups['Sunday Morning'] = [('ATL', 'CAR'),
-                              ('WAS', 'IND'),
-                              ('TEN', 'HOU'),
-                              ('TB', 'PHI'),
-                              ('PIT', 'KC'),
-                              ('NYJ', 'MIA'),
-                              ('BUF', 'LAC'),
-                              ('GB', 'MIN'),
-                              ('NO', 'CLE')]
-matchups['Sunday Afternoon'] = [('SF', 'DET'),
-                                ('LAR', 'ARI'),
-                                ('JAX', 'NE'),
-                                ('DEN', 'OAK')]
-matchups['Sunday Night'] = [('DAL', 'NYG')]
-matchups['Monday Night'] = [('CHI', 'SEA')]
+matchups['Thursday Night'] = [('CLE', 'NYJ')]
+matchups['Sunday Morning'] = [('ATL', 'NO'),
+                              ('WAS', 'GB'),
+                              ('PHI', 'IND'),
+                              ('MIN', 'BUF'),
+                              ('MIA', 'OAK'),
+                              ('BAL', 'DEN'),
+                              ('CAR', 'CIN'),
+                              ('HOU', 'NYG'),
+                              ('JAX', 'TEN'),
+                              ('KC', 'SF')]
+matchups['Sunday Afternoon'] = [('LAR', 'LAC'),
+                                ('SEA', 'DAL'),
+                                ('ARI', 'CHI')]
+matchups['Sunday Night'] = [('DET', 'NE')]
+matchups['Monday Night'] = [('TB', 'PIT')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -46,6 +46,8 @@ output_file = location + '/Weekly Forecasts/Week' + str(week_number) + '.xlsx'
 output_fig = location + '/Weekly Forecasts/Week' + str(week_number) + '.png'
 stadium_file = location + '/StadiumLocs.csv'
 stadiums = pd.read_csv(stadium_file, index_col = 0)
+
+rankings = ranking.rank(os.path.join(location, 'Score Tables'), week_number)
 
 n_games = 0
 for day in matchups:
@@ -117,7 +119,8 @@ for game_time in matchups:
         probwin = results['ProbWin']
 
         #Calculate hype
-        home_ranking = 0.5
+        home_ranking = rankings.loc[home, 'Quantile']
+        away_ranking = rankings.loc[away, 'Quantile']
         away_ranking = 0.5
         ranking_factor = (home_ranking + away_ranking) / 2
         hwin = probwin[home]

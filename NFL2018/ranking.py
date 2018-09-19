@@ -42,7 +42,7 @@ def rank(wd, roundno):
     results['Quantile'] = norm.cdf(results['Standardized'].astype(float))
 
     #Write results to file
-    outfile = os.path.join(os.path.split(wd)[0], 'Rankings', 'RankingsRound{}.csv'.format(roundno))
+    outfile = os.path.join(os.path.split(wd)[0], 'Rankings', 'RankingsWeek{}.csv'.format(roundno))
     results.sort_values('Overall', ascending = False).to_csv(outfile)
     return results
     #Popen(outfile, shell = True)
