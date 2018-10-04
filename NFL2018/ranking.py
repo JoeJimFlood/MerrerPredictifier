@@ -22,7 +22,7 @@ def rank(wd, roundno):
         pa[team[:-4]] = np.dot(data[scores_against], scores).mean()
 
     #Create data frame for results
-    results = pd.DataFrame(index = pf.keys(), columns = ['Attack', 'Defense', 'Overall'])
+    results = pd.DataFrame(index = pf.keys(), columns = ['Offense', 'Defense', 'Overall'])
 
     #Calculate each teams residual points for, against, and differential
     for team in os.listdir(wd):
@@ -31,9 +31,9 @@ def rank(wd, roundno):
         data['Against'] = np.dot(data[scores_against], scores)
         data['OppFor'] = data['OPP'].map(pf)
         data['OppAgainst'] = data['OPP'].map(pa)
-        data['Attack'] = data['For'] - data['OppAgainst']
+        data['Offense'] = data['For'] - data['OppAgainst']
         data['Defense'] = data['Against'] - data['OppFor']
-        data['Overall'] = data['Attack'] - data['Defense']
+        data['Overall'] = data['Offense'] - data['Defense']
     
         results.loc[team[:-4]] = data[results.columns].mean() #Add to results table
 
