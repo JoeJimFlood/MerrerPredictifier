@@ -14,24 +14,23 @@ import ranking
 
 week_timer = time.time()
 
-week_number = 6
+week_number = 7
 
 matchups = collections.OrderedDict()
-matchups['Thursday Night'] = [('NYG', 'PHI')]
-matchups['Sunday Morning'] = [('ATL', 'TB'),
-                              ('WAS', 'CAR'),
-                              ('OAK', 'SEA', 'LON'),
-                              ('NYJ', 'IND'),
-                              ('MIN', 'ARI'),
-                              ('CIN', 'PIT'),
-                              ('CLE', 'LAC'),
-                              ('HOU', 'BUF'),
-                              ('MIA', 'CHI')]
-matchups['Sunday Afternoon'] = [('DEN', 'LAR'),
-                                ('TEN', 'BAL'),
-                                ('DAL', 'JAX')]
-matchups['Sunday Night'] = [('NE', 'KC')]
-matchups['Monday Night'] = [('GB', 'SF')]
+matchups['Thursday Night'] = [('ARI', 'DEN')]
+matchups['Sunday Early Morning'] = [('LAC', 'TEN', 'LON')]
+matchups['Sunday Morning'] = [('JAX', 'HOU'),
+                              ('PHI', 'CAR'),
+                              ('NYJ', 'MIN'),
+                              ('CHI', 'NE'),
+                              ('IND', 'BUF'),
+                              ('TB', 'CLE'),
+                              ('MIA', 'DET')]
+matchups['Sunday Afternoon'] = [('BAL', 'NO'),
+                                ('WAS', 'DAL'),
+                                ('SF', 'LAR')]
+matchups['Sunday Night'] = [('KC', 'CIN')]
+matchups['Monday Night'] = [('ATL', 'NYG')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -120,7 +119,6 @@ for game_time in matchups:
         #Calculate hype
         home_ranking = rankings.loc[home, 'Quantile']
         away_ranking = rankings.loc[away, 'Quantile']
-        away_ranking = 0.5
         ranking_factor = (home_ranking + away_ranking) / 2
         hwin = probwin[home]
         awin = probwin[away]
