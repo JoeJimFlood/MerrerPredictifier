@@ -14,23 +14,23 @@ import ranking
 
 week_timer = time.time()
 
-week_number = 7
+week_number = 8
 
 matchups = collections.OrderedDict()
-matchups['Thursday Night'] = [('ARI', 'DEN')]
-matchups['Sunday Early Morning'] = [('LAC', 'TEN', 'LON')]
-matchups['Sunday Morning'] = [('JAX', 'HOU'),
-                              ('PHI', 'CAR'),
-                              ('NYJ', 'MIN'),
-                              ('CHI', 'NE'),
-                              ('IND', 'BUF'),
-                              ('TB', 'CLE'),
-                              ('MIA', 'DET')]
-matchups['Sunday Afternoon'] = [('BAL', 'NO'),
-                                ('WAS', 'DAL'),
-                                ('SF', 'LAR')]
-matchups['Sunday Night'] = [('KC', 'CIN')]
-matchups['Monday Night'] = [('ATL', 'NYG')]
+matchups['Thursday Night'] = [('HOU', 'MIA')]
+matchups['Sunday London'] = [('JAX', 'PHI', 'LON')]
+matchups['Sunday Morning'] = [('KC', 'DEN'),
+                              ('PIT', 'CLE'),
+                              ('NYG', 'WAS'),
+                              ('DET', 'SEA'),
+                              ('CIN', 'TB'),
+                              ('CHI', 'NYJ'),
+                              ('CAR', 'BAL')]
+matchups['Sunday Afternoon'] = [('OAK', 'IND'),
+                                ('ARI', 'SF'),
+                                ('LAR', 'GB')]
+matchups['Sunday Night'] = [('MIN', 'NO')]
+matchups['Monday Night'] = [('BUF', 'NE')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
