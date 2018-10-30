@@ -40,6 +40,9 @@ def rank(wd, roundno):
     #Standardize results and compute theoretical quantiles
     results['Standardized'] = (results['Overall'] - results['Overall'].mean())/results['Overall'].std()
     results['Quantile'] = norm.cdf(results['Standardized'].astype(float))
+    results['OFF RANK'] = results['Offense'].rank(ascending = False).astype(int)
+    results['DEF RANK'] = results['Defense'].rank(ascending = True).astype(int)
+    results['OVR RANK'] = results['Overall'].rank(ascending = False).astype(int)
 
     #Write results to file
     outfile = os.path.join(os.path.split(wd)[0], 'Rankings', 'RankingsWeek{}.csv'.format(roundno))
