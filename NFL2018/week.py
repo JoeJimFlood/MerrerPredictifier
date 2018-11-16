@@ -29,7 +29,7 @@ matchups['Sunday Afternoon'] = [('LAC', 'DEN'),
                                 ('ARI', 'OAK'),
                                 ('NO', 'PHI')]
 matchups['Sunday Night'] = [('CHI', 'MIN')]
-matchups['Monday Night'] = [('LAR', 'KC', 'MEX')]
+matchups['Monday Night'] = [('LAR', 'KC')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
