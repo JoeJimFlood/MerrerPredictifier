@@ -14,26 +14,14 @@ import ranking
 
 week_timer = time.time()
 
-week_number = 17
+week_number = 'WC'
 
 matchups = collections.OrderedDict()
 
-matchups['Sunday Morning'] = [('BUF', 'MIA'),
-                              ('TB', 'ATL'),
-                              ('NYG', 'DAL'),
-                              ('NO', 'CAR'),
-                              ('NE', 'NYJ'),
-                              ('HOU', 'JAX'),
-                              ('GB', 'DET')]
-matchups['Sunday Afternoon'] = [('WAS', 'PHI'),
-                                ('DEN', 'LAC'),
-                                ('KC', 'OAK'),
-                                ('MIN', 'CHI'),
-                                ('BAL', 'CLE'),
-                                ('LAR', 'SF'),
-                                ('PIT', 'CIN'),
-                                ('SEA', 'ARI')]
-matchups['Sunday Night'] = [('TEN', 'IND')]
+matchups['Saturday'] = [('HOU', 'IND'),
+                        ('DAL', 'SEA')]
+matchups['Sunday'] = [('BAL', 'LAC'),
+                      ('CHI', 'PHI')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -158,16 +146,16 @@ for game_time in matchups:
         if counter == 5:
             counter += 1
 
-        if counter == 10:
-            plt.savefig(output_fig.replace('.png', '-1.png'))
-            plt.clf()
-            plt.close()
+        #if counter == 10:
+        #    plt.savefig(output_fig.replace('.png', '-1.png'))
+        #    plt.clf()
+        #    plt.close()
 
-            counter = 1
-            plt.figure(figsize = (24, 24), dpi = 96)
-            plt.title('Week ' + str(week_number))
+        #    counter = 1
+        #    plt.figure(figsize = (24, 24), dpi = 96)
+        #    plt.title('Week ' + str(week_number))
 
-        plt.subplot(3, 3, counter)
+        plt.subplot(2, 2, counter)
         labels = [home, away]
         values = [hwin, awin]
         c = [colors[home][0], colors[away][0]]
@@ -180,12 +168,13 @@ for game_time in matchups:
                 autopct='%.0f%%',
                 startangle = 90,
                 labeldistance = 1,
-                textprops = {'backgroundcolor': '#ffffff', 'ha': 'center', 'va': 'center', 'fontsize': 18})
-        plt.title(name_map[home] + ' vs ' + name_map[away] + '\n' + stadium + '\n' + city + ', ' + state + '\n' + 'Hype: ' + str(int(round(hype, 0))), size = 18)
+                textprops = {'backgroundcolor': '#ffffff', 'ha': 'center', 'va': 'center', 'fontsize': 24})
+        plt.title(name_map[home] + ' vs ' + name_map[away] + '\n' + stadium + '\n' + city + ', ' + state + '\n' + 'Hype: ' + str(int(round(hype, 0))), size = 24)
         plt.axis('equal')
 
 week_book.close()
 
-plt.savefig(output_fig.replace('.png', '-2.png'))
+#plt.savefig(output_fig.replace('.png', '-2.png'))
+plt.savefig(output_fig)
 
 print('Week ' + str(week_number) + ' predictions calculated in ' + str(round((time.time() - week_timer) / 60, 2)) + ' minutes')

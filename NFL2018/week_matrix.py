@@ -1,3 +1,6 @@
+import os
+os.chdir(os.path.dirname(__file__))
+
 import pandas as pd
 import xlsxwriter
 import sys
@@ -6,23 +9,79 @@ import collections
 import os
 import matplotlib.pyplot as plt
 
-venue = False
-if venue:
-    import matchup_hfa as matchup
-else:
-    import matchup
+import matchup
 
 week_timer = time.time()
 
-week_number = 'ConMatrix'
+week_number = 'WCMatrix'
 
 matchups = collections.OrderedDict()
-matchups['NE'] = [('NE', 'PIT'),
-                  ('NE', 'ATL'),
-                  ('NE', 'GB')]
-matchups['PIT'] = [('PIT', 'ATL'),
-                   ('PIT', 'GB')]
-matchups['ATL'] = [('ATL', 'GB')]
+matchups['KC'] = [('KC', 'NE'),
+                  ('KC', 'HOU'),
+                  ('KC', 'BAL'),
+                  ('KC', 'LAC'),
+                  ('KC', 'IND'),
+                  ('KC', 'NO', 'ATL'),
+                  ('KC', 'LAR', 'ATL'),
+                  ('KC', 'CHI', 'ATL'),
+                  ('KC', 'DAL', 'ATL'),
+                  ('KC', 'SEA', 'ATL'),
+                  ('KC', 'PHI', 'ATL')]
+matchups['NE'] = [('NE', 'HOU'),
+                  ('NE', 'BAL'),
+                  ('NE', 'LAC'),
+                  ('NE', 'IND'),
+                  ('NE', 'NO', 'ATL'),
+                  ('NE', 'LAR', 'ATL'),
+                  ('NE', 'CHI', 'ATL'),
+                  ('NE', 'DAL', 'ATL'),
+                  ('NE', 'SEA', 'ATL'),
+                  ('NE', 'PHI', 'ATL')]
+matchups['HOU'] = [('HOU', 'BAL'),
+                   ('HOU', 'LAC'),
+                   ('HOU', 'IND'),
+                   ('HOU', 'NO', 'ATL'),
+                   ('HOU', 'LAR', 'ATL'),
+                   ('HOU', 'CHI', 'ATL'),
+                   ('HOU', 'DAL', 'ATL'),
+                   ('HOU', 'SEA', 'ATL'),
+                   ('HOU', 'PHI', 'ATL')]
+matchups['BAL'] = [('BAL', 'LAC'),
+                   ('BAL', 'IND'),
+                   ('BAL', 'NO', 'ATL'),
+                   ('BAL', 'LAR', 'ATL'),
+                   ('BAL', 'CHI', 'ATL'),
+                   ('BAL', 'DAL', 'ATL'),
+                   ('BAL', 'SEA', 'ATL'),
+                   ('BAL', 'PHI', 'ATL')]
+matchups['LAC'] = [('LAC', 'IND'),
+                   ('LAC', 'NO', 'ATL'),
+                   ('LAC', 'LAR', 'ATL'),
+                   ('LAC', 'CHI', 'ATL'),
+                   ('LAC', 'DAL', 'ATL'),
+                   ('LAC', 'SEA', 'ATL'),
+                   ('LAC', 'PHI', 'ATL')]
+matchups['IND'] = [('IND', 'NO', 'ATL'),
+                   ('IND', 'LAR', 'ATL'),
+                   ('IND', 'CHI', 'ATL'),
+                   ('IND', 'DAL', 'ATL'),
+                   ('IND', 'SEA', 'ATL'),
+                   ('IND', 'PHI', 'ATL')]
+matchups['NO'] = [('NO', 'LAR'),
+                  ('NO', 'CHI'),
+                  ('NO', 'DAL'),
+                  ('NO', 'SEA'),
+                  ('NO', 'PHI')]
+matchups['LAR'] = [('LAR', 'CHI'),
+                   ('LAR', 'DAL'),
+                   ('LAR', 'SEA'),
+                   ('LAR', 'PHI')]
+matchups['CHI'] = [('CHI', 'DAL'),
+                   ('CHI', 'SEA'),
+                   ('CHI', 'PHI')]
+matchups['DAL'] = [('DAL', 'SEA'),
+                   ('DAL', 'PHI')]
+matchups['SEA'] = [('SEA', 'PHI')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -104,27 +163,29 @@ for game_time in matchups:
         if i != len(games) - 1:
             sheet.write_string(0, 3 * i + 3, ' ')
 
-        counter += 1
-        hwin = probwin[home]
-        awin = probwin[away]
-        draw = 1 - hwin - awin
+        #counter += 1
+        #hwin = probwin[home]
+        #awin = probwin[away]
+        #draw = 1 - hwin - awin
 
-        plt.subplot(5, 6, counter)
-        labels = [home, away]
-        values = [hwin, awin]
-        c = [colors[home][0], colors[away][0]]
-        ex = 0.05
-        explode = [ex, ex]
-        plt.pie(values,
-                colors = c,
-                labels = labels,
-                explode = explode,
-                autopct='%.0f%%',
-                startangle = 90,
-                labeldistance = 1,
-                textprops = {'backgroundcolor': '#ffffff', 'ha': 'center', 'va': 'center'})
-        plt.title(name_map[home] + ' vs ' + name_map[away], size = 18)
-        plt.axis('equal')
+        #plt.subplot(5, 6, counter)
+        #labels = [home, away]
+        #values = [hwin, awin]
+        #c = [colors[home][0], colors[away][0]]
+        #ex = 0.05
+        #explode = [ex, ex]
+        #plt.pie(values,
+        #        colors = c,
+        #        labels = labels,
+        #        explode = explode,
+        #        autopct='%.0f%%',
+        #        startangle = 90,
+        #        labeldistance = 1,
+        #        textprops = {'backgroundcolor': '#ffffff', 'ha': 'center', 'va': 'center'})
+        #plt.title(name_map[home] + ' vs ' + name_map[away], size = 18)
+        #plt.axis('equal')
+
+        time.sleep(5)
 
 week_book.close()
 
