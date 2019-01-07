@@ -13,75 +13,37 @@ import matchup
 
 week_timer = time.time()
 
-week_number = 'WCMatrix'
+week_number = 'DivMatrix'
 
 matchups = collections.OrderedDict()
 matchups['KC'] = [('KC', 'NE'),
-                  ('KC', 'HOU'),
-                  ('KC', 'BAL'),
                   ('KC', 'LAC'),
                   ('KC', 'IND'),
                   ('KC', 'NO', 'ATL'),
                   ('KC', 'LAR', 'ATL'),
-                  ('KC', 'CHI', 'ATL'),
                   ('KC', 'DAL', 'ATL'),
-                  ('KC', 'SEA', 'ATL'),
                   ('KC', 'PHI', 'ATL')]
-matchups['NE'] = [('NE', 'HOU'),
-                  ('NE', 'BAL'),
-                  ('NE', 'LAC'),
+matchups['NE'] = [('NE', 'LAC'),
                   ('NE', 'IND'),
                   ('NE', 'NO', 'ATL'),
                   ('NE', 'LAR', 'ATL'),
-                  ('NE', 'CHI', 'ATL'),
                   ('NE', 'DAL', 'ATL'),
-                  ('NE', 'SEA', 'ATL'),
                   ('NE', 'PHI', 'ATL')]
-matchups['HOU'] = [('HOU', 'BAL'),
-                   ('HOU', 'LAC'),
-                   ('HOU', 'IND'),
-                   ('HOU', 'NO', 'ATL'),
-                   ('HOU', 'LAR', 'ATL'),
-                   ('HOU', 'CHI', 'ATL'),
-                   ('HOU', 'DAL', 'ATL'),
-                   ('HOU', 'SEA', 'ATL'),
-                   ('HOU', 'PHI', 'ATL')]
-matchups['BAL'] = [('BAL', 'LAC'),
-                   ('BAL', 'IND'),
-                   ('BAL', 'NO', 'ATL'),
-                   ('BAL', 'LAR', 'ATL'),
-                   ('BAL', 'CHI', 'ATL'),
-                   ('BAL', 'DAL', 'ATL'),
-                   ('BAL', 'SEA', 'ATL'),
-                   ('BAL', 'PHI', 'ATL')]
 matchups['LAC'] = [('LAC', 'IND'),
                    ('LAC', 'NO', 'ATL'),
                    ('LAC', 'LAR', 'ATL'),
-                   ('LAC', 'CHI', 'ATL'),
                    ('LAC', 'DAL', 'ATL'),
-                   ('LAC', 'SEA', 'ATL'),
                    ('LAC', 'PHI', 'ATL')]
 matchups['IND'] = [('IND', 'NO', 'ATL'),
                    ('IND', 'LAR', 'ATL'),
-                   ('IND', 'CHI', 'ATL'),
                    ('IND', 'DAL', 'ATL'),
-                   ('IND', 'SEA', 'ATL'),
                    ('IND', 'PHI', 'ATL')]
 matchups['NO'] = [('NO', 'LAR'),
-                  ('NO', 'CHI'),
                   ('NO', 'DAL'),
-                  ('NO', 'SEA'),
                   ('NO', 'PHI')]
-matchups['LAR'] = [('LAR', 'CHI'),
-                   ('LAR', 'DAL'),
-                   ('LAR', 'SEA'),
+matchups['LAR'] = [('LAR', 'DAL'),
                    ('LAR', 'PHI')]
-matchups['CHI'] = [('CHI', 'DAL'),
-                   ('CHI', 'SEA'),
-                   ('CHI', 'PHI')]
-matchups['DAL'] = [('DAL', 'SEA'),
-                   ('DAL', 'PHI')]
-matchups['SEA'] = [('SEA', 'PHI')]
+matchups['DAL'] = [('DAL', 'PHI')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
