@@ -18,10 +18,8 @@ week_number = 'Con'
 
 matchups = collections.OrderedDict()
 
-matchups['Saturday'] = [('KC', 'IND'),
-                        ('LAR', 'DAL')]
-matchups['Sunday'] = [('NE', 'LAC'),
-                      ('NO', 'PHI')]
+matchups['Sunday'] = [('NO', 'LAR'),
+                      ('KC', 'NE')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -53,7 +51,7 @@ for team in teams:
 
 name_map = pd.DataFrame.from_csv(location + '/names.csv')['NAME'].to_dict()
 
-plt.figure(figsize = (24, 24), dpi = 96)
+plt.figure(figsize = (12, 24), dpi = 96)
 plt.title('Week ' + str(week_number))
 counter = 0
 
@@ -155,7 +153,7 @@ for game_time in matchups:
         #    plt.figure(figsize = (24, 24), dpi = 96)
         #    plt.title('Week ' + str(week_number))
 
-        plt.subplot(2, 2, counter)
+        plt.subplot(1, 2, counter)
         labels = [home, away]
         values = [hwin, awin]
         c = [colors[home][0], colors[away][0]]

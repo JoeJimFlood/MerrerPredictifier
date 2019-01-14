@@ -13,37 +13,15 @@ import matchup
 
 week_timer = time.time()
 
-week_number = 'DivMatrix'
+week_number = 'ConMatrix'
 
 matchups = collections.OrderedDict()
 matchups['KC'] = [('KC', 'NE'),
-                  ('KC', 'LAC'),
-                  ('KC', 'IND'),
                   ('KC', 'NO', 'ATL'),
-                  ('KC', 'LAR', 'ATL'),
-                  ('KC', 'DAL', 'ATL'),
-                  ('KC', 'PHI', 'ATL')]
-matchups['NE'] = [('NE', 'LAC'),
-                  ('NE', 'IND'),
-                  ('NE', 'NO', 'ATL'),
-                  ('NE', 'LAR', 'ATL'),
-                  ('NE', 'DAL', 'ATL'),
-                  ('NE', 'PHI', 'ATL')]
-matchups['LAC'] = [('LAC', 'IND'),
-                   ('LAC', 'NO', 'ATL'),
-                   ('LAC', 'LAR', 'ATL'),
-                   ('LAC', 'DAL', 'ATL'),
-                   ('LAC', 'PHI', 'ATL')]
-matchups['IND'] = [('IND', 'NO', 'ATL'),
-                   ('IND', 'LAR', 'ATL'),
-                   ('IND', 'DAL', 'ATL'),
-                   ('IND', 'PHI', 'ATL')]
-matchups['NO'] = [('NO', 'LAR'),
-                  ('NO', 'DAL'),
-                  ('NO', 'PHI')]
-matchups['LAR'] = [('LAR', 'DAL'),
-                   ('LAR', 'PHI')]
-matchups['DAL'] = [('DAL', 'PHI')]
+                  ('KC', 'LAR', 'ATL')]
+matchups['NE'] = [('NE', 'NO', 'ATL'),
+                  ('NE', 'LAR', 'ATL')]
+matchups['NO'] = [('NO', 'LAR')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
