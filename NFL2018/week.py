@@ -51,7 +51,7 @@ for team in teams:
 
 name_map = pd.DataFrame.from_csv(location + '/names.csv')['NAME'].to_dict()
 
-plt.figure(figsize = (12, 24), dpi = 96)
+plt.figure(figsize = (24, 12), dpi = 96)
 plt.title('Week ' + str(week_number))
 counter = 0
 
