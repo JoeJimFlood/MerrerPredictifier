@@ -14,12 +14,11 @@ import ranking
 
 week_timer = time.time()
 
-week_number = 'Con'
+week_number = 'SB'
 
 matchups = collections.OrderedDict()
 
-matchups['Sunday'] = [('NO', 'LAR'),
-                      ('KC', 'NE')]
+matchups['Sunday'] = [('NE', 'LAR', 'ATL')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -51,7 +50,7 @@ for team in teams:
 
 name_map = pd.DataFrame.from_csv(location + '/names.csv')['NAME'].to_dict()
 
-plt.figure(figsize = (24, 12), dpi = 96)
+plt.figure(figsize = (24, 24), dpi = 96)
 plt.title('Week ' + str(week_number))
 counter = 0
 
@@ -153,7 +152,7 @@ for game_time in matchups:
         #    plt.figure(figsize = (24, 24), dpi = 96)
         #    plt.title('Week ' + str(week_number))
 
-        plt.subplot(1, 2, counter)
+        plt.subplot(1, 1, counter)
         labels = [home, away]
         values = [hwin, awin]
         c = [colors[home][0], colors[away][0]]
@@ -166,8 +165,8 @@ for game_time in matchups:
                 autopct='%.0f%%',
                 startangle = 90,
                 labeldistance = 1,
-                textprops = {'backgroundcolor': '#ffffff', 'ha': 'center', 'va': 'center', 'fontsize': 24})
-        plt.title(name_map[home] + ' vs ' + name_map[away] + '\n' + stadium + '\n' + city + ', ' + state + '\n' + 'Hype: ' + str(int(round(hype, 0))), size = 24)
+                textprops = {'backgroundcolor': '#ffffff', 'ha': 'center', 'va': 'center', 'fontsize': 48})
+        plt.title(name_map[home] + ' vs ' + name_map[away] + '\n' + stadium + '\n' + city + ', ' + state + '\n' + 'Hype: ' + str(int(round(hype, 0))), size = 48)
         plt.axis('equal')
 
 week_book.close()
