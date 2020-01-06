@@ -14,14 +14,14 @@ import ranking
 
 week_timer = time.time()
 
-week_number = 'WC'
+week_number = 'Div'
 
 matchups = collections.OrderedDict()
 
-matchups['Saturday'] = [('HOU', 'BUF'),
-                        ('NE', 'TEN')]
-matchups['Sunday'] = [('NO', 'MIN'),
-                      ('PHI', 'SEA')]
+matchups['Saturday'] = [('SF', 'MIN'),
+                        ('BAL', 'TEN')]
+matchups['Sunday'] = [('KC', 'HOU'),
+                      ('GB', 'SEA')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')

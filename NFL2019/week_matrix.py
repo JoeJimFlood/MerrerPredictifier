@@ -13,74 +13,36 @@ import matchup
 
 week_timer = time.time()
 
-week_number = 'WCMatrix'
+week_number = 'DivMatrix'
 
 matchups = collections.OrderedDict()
 matchups['BAL'] = [('BAL', 'KC'),
-                   ('BAL', 'NE'),
                    ('BAL', 'HOU'),
-                   ('BAL', 'BUF'),
                    ('BAL', 'TEN'),
                    ('BAL', 'SF', 'MIA'),
                    ('BAL', 'GB', 'MIA'),
-                   ('BAL', 'NO', 'MIA'),
-                   ('BAL', 'PHI', 'MIA'),
                    ('BAL', 'SEA', 'MIA'),
                    ('BAL', 'MIN', 'MIA')]
-matchups['KC'] = [('KC', 'NE'),
-                  ('KC', 'HOU'),
-                  ('KC', 'BUF'),
+matchups['KC'] = [('KC', 'HOU'),
                   ('KC', 'TEN'),
                   ('KC', 'SF', 'MIA'),
                   ('KC', 'GB', 'MIA'),
-                  ('KC', 'NO', 'MIA'),
-                  ('KC', 'PHI', 'MIA'),
                   ('KC', 'SEA', 'MIA'),
                   ('KC', 'MIN', 'MIA')]
-matchups['NE'] = [('NE', 'HOU'),
-                  ('NE', 'BUF'),
-                  ('NE', 'TEN'),
-                  ('NE', 'SF', 'MIA'),
-                  ('NE', 'GB', 'MIA'),
-                  ('NE', 'NO', 'MIA'),
-                  ('NE', 'PHI', 'MIA'),
-                  ('NE', 'SEA', 'MIA'),
-                  ('NE', 'MIN', 'MIA')]
-matchups['HOU'] = [('HOU', 'BUF'),
-                   ('HOU', 'TEN'),
+matchups['HOU'] = [('HOU', 'TEN'),
                    ('HOU', 'SF', 'MIA'),
                    ('HOU', 'GB', 'MIA'),
-                   ('HOU', 'NO', 'MIA'),
-                   ('HOU', 'PHI', 'MIA'),
                    ('HOU', 'SEA', 'MIA'),
                    ('HOU', 'MIN', 'MIA')]
-matchups['BUF'] = [('BUF', 'TEN'),
-                   ('BUF', 'SF', 'MIA'),
-                   ('BUF', 'GB', 'MIA'),
-                   ('BUF', 'NO', 'MIA'),
-                   ('BUF', 'PHI', 'MIA'),
-                   ('BUF', 'SEA', 'MIA'),
-                   ('BUF', 'MIN', 'MIA')]
 matchups['TEN'] = [('TEN', 'SF', 'MIA'),
                    ('TEN', 'GB', 'MIA'),
-                   ('TEN', 'NO', 'MIA'),
-                   ('TEN', 'PHI', 'MIA'),
                    ('TEN', 'SEA', 'MIA'),
                    ('TEN', 'MIN', 'MIA')]
 matchups['SF'] = [('SF', 'GB'),
-                  ('SF', 'NO'),
-                  ('SF', 'PHI'),
                   ('SF', 'SEA'),
                   ('SF', 'MIN')]
-matchups['GB'] = [('GB', 'NO'),
-                  ('GB', 'PHI'),
-                  ('GB', 'SEA'),
+matchups['GB'] = [('GB', 'SEA'),
                   ('GB', 'MIN')]
-matchups['NO'] = [('NO', 'PHI'),
-                  ('NO', 'SEA'),
-                  ('NO', 'MIN')]
-matchups['PHI'] = [('PHI', 'SEA'),
-                   ('PHI', 'MIN')]
 matchups['SEA'] = [('SEA', 'MIN')]
 
 def rgb2hex(r, g, b):
