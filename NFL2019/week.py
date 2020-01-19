@@ -14,14 +14,12 @@ import ranking
 
 week_timer = time.time()
 
-week_number = 'Div'
+week_number = 'Con'
 
 matchups = collections.OrderedDict()
 
-matchups['Saturday'] = [('SF', 'MIN'),
-                        ('BAL', 'TEN')]
-matchups['Sunday'] = [('KC', 'HOU'),
-                      ('GB', 'SEA')]
+matchups['Sunday'] = [('KC', 'TEN'),
+                      ('GB', 'SF')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
@@ -152,10 +150,10 @@ for game_time in matchups:
             plt.close()
 
             counter = 1
-            plt.figure(figsize = (24, 24), dpi = 96)
+            plt.figure(figsize = (24, 12), dpi = 96)
             plt.title('Week ' + str(week_number))
 
-        plt.subplot(2, 2, counter)
+        plt.subplot(1, 2, counter)
         labels = [home, away]
         values = [hwin, awin]
         c = [colors[home][0], colors[away][0]]

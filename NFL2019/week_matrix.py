@@ -13,37 +13,15 @@ import matchup
 
 week_timer = time.time()
 
-week_number = 'DivMatrix'
+week_number = 'ConMatrix'
 
 matchups = collections.OrderedDict()
-matchups['BAL'] = [('BAL', 'KC'),
-                   ('BAL', 'HOU'),
-                   ('BAL', 'TEN'),
-                   ('BAL', 'SF', 'MIA'),
-                   ('BAL', 'GB', 'MIA'),
-                   ('BAL', 'SEA', 'MIA'),
-                   ('BAL', 'MIN', 'MIA')]
-matchups['KC'] = [('KC', 'HOU'),
-                  ('KC', 'TEN'),
+matchups['KC'] = [('KC', 'TEN'),
                   ('KC', 'SF', 'MIA'),
-                  ('KC', 'GB', 'MIA'),
-                  ('KC', 'SEA', 'MIA'),
-                  ('KC', 'MIN', 'MIA')]
-matchups['HOU'] = [('HOU', 'TEN'),
-                   ('HOU', 'SF', 'MIA'),
-                   ('HOU', 'GB', 'MIA'),
-                   ('HOU', 'SEA', 'MIA'),
-                   ('HOU', 'MIN', 'MIA')]
+                  ('KC', 'GB', 'MIA')]
 matchups['TEN'] = [('TEN', 'SF', 'MIA'),
-                   ('TEN', 'GB', 'MIA'),
-                   ('TEN', 'SEA', 'MIA'),
-                   ('TEN', 'MIN', 'MIA')]
-matchups['SF'] = [('SF', 'GB'),
-                  ('SF', 'SEA'),
-                  ('SF', 'MIN')]
-matchups['GB'] = [('GB', 'SEA'),
-                  ('GB', 'MIN')]
-matchups['SEA'] = [('SEA', 'MIN')]
+                   ('TEN', 'GB', 'MIA')]
+matchups['SF'] = [('SF', 'GB')]
 
 def rgb2hex(r, g, b):
     r_hex = hex(r)[-2:].replace('x', '0')
