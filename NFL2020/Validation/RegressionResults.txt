@@ -1,0 +1,25 @@
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:           Actual Score   R-squared:                       0.138
+Model:                            OLS   Adj. R-squared:                  0.130
+Method:                 Least Squares   F-statistic:                     16.34
+Date:                Tue, 07 Jan 2020   Prob (F-statistic):           0.000103
+Time:                        01:15:40   Log-Likelihood:                -377.50
+No. Observations:                 104   AIC:                             759.0
+Df Residuals:                     102   BIC:                             764.3
+Df Model:                           1                                         
+Covariance Type:            nonrobust                                         
+==================================================================================
+                     coef    std err          t      P>|t|      [95.0% Conf. Int.]
+----------------------------------------------------------------------------------
+Expected Score     0.6475      0.160      4.042      0.000         0.330     0.965
+Constant           8.4415      3.743      2.255      0.026         1.017    15.866
+==============================================================================
+Omnibus:                        1.863   Durbin-Watson:                   2.033
+Prob(Omnibus):                  0.394   Jarque-Bera (JB):                1.664
+Skew:                           0.189   Prob(JB):                        0.435
+Kurtosis:                       2.509   Cond. No.                         97.0
+==============================================================================
+
+Warnings:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
